@@ -1,245 +1,287 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react_router_dom';
 import { db } from './firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  serverTimestamp 
+} from 'firebase/firestore';
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  // Firebase Canlı Məlumatlar
+// --- 1. SİFARİŞLƏR SƏHİFƏSİ (EDIT FUNKSİYASI İLƏ) ---
+function OrdersPage() {
   const [orders, setOrders] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const [inventory, setInventory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Form sahələri
+  const [customer, setCustomer] = useState('');
+  const [product, setProduct] = useState('');
+  const [amount, setAmount] = useState('');
+  const [status, setStatus] = useState('Gözləyir');
+
+  // Edit rejimi
+  const [editingId, setEditingId] = useState(null);
+
+  const ordersRef = collection(db, 'orders');
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(ordersRef);
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setOrders(data);
+    } catch (err) {
+      console.error("Məlumat çəkilərkən xəta:", err);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      setOrders(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-
-    const unsubExpenses = onSnapshot(collection(db, "expenses"), (snapshot) => {
-      setExpenses(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-
-    const unsubInventory = onSnapshot(collection(db, "inventory"), (snapshot) => {
-      setInventory(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-
-    return () => {
-      unsubOrders();
-      unsubExpenses();
-      unsubInventory();
-    };
+    fetchOrders();
   }, []);
 
-  // Maliyyə və Stat Hesablamaları
-  const totalOrdersCount = orders.length;
-  const totalRevenue = orders.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0);
-  const totalExpenses = expenses.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-  const netProfit = totalRevenue - totalExpenses;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!customer || !product || !amount) return alert("Bütün xanaları doldurun!");
 
-  // Status Sayğacları
-  const hazirlanirCount = orders.filter(o => o.status === 'Hazırlanır').length;
-  const hazirdirCount = orders.filter(o => o.status === 'Hazırdır').length;
-  const tehvilCount = orders.filter(o => o.status === 'Təhvil verildi').length;
-  const legvCount = orders.filter(o => o.status === 'Ləğv edildi').length;
+    try {
+      if (editingId) {
+        // Redaktə et (Edit)
+        const orderDoc = doc(db, 'orders', editingId);
+        await updateDoc(orderDoc, {
+          customer,
+          product,
+          amount: Number(amount),
+          status,
+          updatedAt: serverTimestamp()
+        });
+        setEditingId(null);
+      } else {
+        // Yeni əlavə et
+        await addDoc(ordersRef, {
+          customer,
+          product,
+          amount: Number(amount),
+          status,
+          createdAt: serverTimestamp()
+        });
+      }
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'orders', label: 'Sifarişlər', icon: '📦' },
-    { id: 'inventory', label: 'Stok (Məhsullar)', icon: '🧱' },
-    { id: 'expenses', label: 'Xərclər (Rasxod)', icon: '💸' },
-    { id: 'barcode', label: 'Barkod', icon: '🏷️' },
-    { id: 'reports', label: 'Hesabatlar', icon: '📈' },
-    { id: 'settings', label: 'Tənzimləmələr', icon: '⚙️' },
-  ];
+      setCustomer('');
+      setProduct('');
+      setAmount('');
+      setStatus('Gözləyir');
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEdit = (order) => {
+    setEditingId(order.id);
+    setCustomer(order.customer || '');
+    setProduct(order.product || '');
+    setAmount(order.amount || '');
+    setStatus(order.status || 'Gözləyir');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setCustomer('');
+    setProduct('');
+    setAmount('');
+    setStatus('Gözləyir');
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bu sifarişi silməyə əminsiniz?")) {
+      await deleteDoc(doc(db, 'orders', id));
+      fetchOrders();
+    }
+  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', backgroundColor: '#f8fafc' }}>
-      
-      {/* SOL SIDEBAR */}
-      <div style={{ width: '240px', backgroundColor: '#0f172a', color: '#fff', padding: '24px 16px', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ marginBottom: '32px', paddingLeft: '8px' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#ffffff' }}>Allbaffy ERP</h2>
-          <span style={{ fontSize: '12px', color: '#64748b' }}>İdarəetmə Paneli</span>
-        </div>
+    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+      <h2 style={{ marginBottom: '20px', color: '#1e293b' }}>
+        Sifarişlərin İdarə Olunması
+      </h2>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-          {menuItems.map(item => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 14px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: isActive ? '600' : '500',
-                  backgroundColor: isActive ? '#2563eb' : 'transparent',
-                  color: isActive ? '#ffffff' : '#94a3b8',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* SAĞ ƏSAS MƏZMUN */}
-      <div style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+      {/* Əlavə et / Edit Formu */}
+      <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '15px', fontSize: '18px', color: '#334155' }}>
+          {editingId ? '✏️ Sifarişi Redaktə Et' : '➕ Yeni Sifariş Yarat'}
+        </h3>
         
-        {/* DASHBOARD SEKSİYASI */}
-        {activeTab === 'dashboard' && (
-          <div>
-            <div style={{ marginBottom: '24px' }}>
-              <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>Dashboard</h1>
-              <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748b' }}>Ümumi biznes xülasəsi, analitika və xəbərdarlıqlar</p>
-            </div>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+          <input 
+            type="text" 
+            placeholder="Müştəri adı" 
+            value={customer} 
+            onChange={e => setCustomer(e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+          <input 
+            type="text" 
+            placeholder="Məhsul adı" 
+            value={product} 
+            onChange={e => setProduct(e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+          <input 
+            type="number" 
+            placeholder="Məbləğ (AZN)" 
+            value={amount} 
+            onChange={e => setAmount(e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+          <select 
+            value={status} 
+            onChange={e => setStatus(e.target.value)}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          >
+            <option value="Gözləyir">Gözləyir</option>
+            <option value="Hazırlanır">Hazırlanır</option>
+            <option value="Çatdırıldı">Çatdırıldı</option>
+            <option value="Ləğv edildi">Ləğv edildi</option>
+          </select>
 
-            {/* Top 4 Stat Kartı */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
-              
-              <div style={{ backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', letterSpacing: '0.5px' }}>ÜMUMİ SİFARİŞLƏR</span>
-                <h2 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#0f172a', fontWeight: 'bold' }}>{totalOrdersCount} ədəd</h2>
-              </div>
-
-              <div style={{ backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', letterSpacing: '0.5px' }}>GƏLİR</span>
-                <h2 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#0f172a', fontWeight: 'bold' }}>{totalRevenue.toFixed(2)} AZN</h2>
-              </div>
-
-              <div style={{ backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', letterSpacing: '0.5px' }}>XƏRC</span>
-                <h2 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#0f172a', fontWeight: 'bold' }}>{totalExpenses.toFixed(2)} AZN</h2>
-              </div>
-
-              <div style={{ backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', letterSpacing: '0.5px' }}>QAZANC</span>
-                <h2 style={{ margin: '8px 0 0 0', fontSize: '24px', color: netProfit >= 0 ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
-                  {netProfit >= 0 ? `+${netProfit.toFixed(2)}` : netProfit.toFixed(2)} AZN
-                </h2>
-              </div>
-
-            </div>
-
-            {/* Xəbərdarlıq Qutuları */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-              <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b91c1c', fontWeight: '600', fontSize: '14px' }}>
-                  <span>⏰</span> Təhvilinə 1 Gün Qalan və ya Keçən Sifarişlər (0)
-                </div>
-                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#7f1d1d' }}>Təhvil tarixi yaxınlaşan təcili sifariş yoxdur.</p>
-              </div>
-
-              <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: '600', fontSize: '14px' }}>
-                  <span>⚠️</span> Stoku Azalan İplər və Materiallar (0)
-                </div>
-                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#78350f' }}>Stokda kritik səviyyədə azalan xammal və ya məhsul yoxdur.</p>
-              </div>
-            </div>
-
-            {/* Sifariş Statusları Blokları */}
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '600', color: '#334155' }}>Sifariş Statusları</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                
-                <div style={{ backgroundColor: '#fef9c3', borderRadius: '8px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#854d0e' }}>Hazırlanır</span>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#713f12', marginTop: '4px' }}>{hazirlanirCount} ədəd</div>
-                </div>
-
-                <div style={{ backgroundColor: '#dcfce7', borderRadius: '8px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#166534' }}>Hazırdır</span>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#14532d', marginTop: '4px' }}>{hazirdirCount} ədəd</div>
-                </div>
-
-                <div style={{ backgroundColor: '#dbeafe', borderRadius: '8px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#1e40af' }}>Təhvil verildi</span>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e3a8a', marginTop: '4px' }}>{tehvilCount} ədəd</div>
-                </div>
-
-                <div style={{ backgroundColor: '#ffe4e6', borderRadius: '8px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#9f1239' }}>Ləğv edildi</span>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#881337', marginTop: '4px' }}>{legvCount} ədəd</div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Son Sifarişlər Cədvəli */}
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '600', color: '#334155' }}>Son Sifarişlər</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f8fafc', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
-                    <th style={{ padding: '10px 12px' }}>Müştəri / Tel</th>
-                    <th style={{ padding: '10px 12px' }}>Məhsul Kodu</th>
-                    <th style={{ padding: '10px 12px' }}>Məhsul</th>
-                    <th style={{ padding: '10px 12px' }}>Məbləğ</th>
-                    <th style={{ padding: '10px 12px' }}>Sifariş / Təhvil Tarixi</th>
-                    <th style={{ padding: '10px 12px' }}>Status (Hamısı) ∨</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'right' }}>Əməliyyat</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>Məlumat tapılmadı</td>
-                    </tr>
-                  ) : (
-                    orders.map(o => (
-                      <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ fontWeight: '600', color: '#0f172a' }}>{o.customerName}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>{o.phone || '070 970 09 79'}</div>
-                        </td>
-                        <td style={{ padding: '12px', color: '#64748b' }}>{o.productCode || 'ALP-001'}</td>
-                        <td style={{ padding: '12px', color: '#334155' }}>{o.productName || 'odeyal 183'}</td>
-                        <td style={{ padding: '12px', fontWeight: '600', color: '#0f172a' }}>{o.price ? `${o.price}.00 AZN` : '80.00 AZN'}</td>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ color: '#334155' }}>Sifariş: {o.date || '07/08/26'}</div>
-                          <div style={{ color: '#94a3b8', fontSize: '11px' }}>Təhvil: -</div>
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600', backgroundColor: '#fef9c3', color: '#854d0e' }}>
-                            {o.status || 'Hazırlanır'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'right' }}>
-                          <button style={{ padding: '4px 10px', border: '1px solid #cbd5e1', backgroundColor: '#fff', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', color: '#334155' }}>
-                            ✏️ Düzəliş
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              type="submit" 
+              style={{ flex: 1, padding: '10px', background: editingId ? '#0284c7' : '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              {editingId ? 'Yenilə' : 'Əlavə et'}
+            </button>
+            {editingId && (
+              <button 
+                type="button" 
+                onClick={handleCancelEdit}
+                style={{ padding: '10px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+              >
+                Ləğv et
+              </button>
+            )}
           </div>
-        )}
-
-        {/* Diqqət: Digər tab-lar (Sifarişlər, Rasxodlar və s.) ehtiyaca uyğun olaraq menyudan seçildikdə bura əlavə olunacaq */}
-        {activeTab !== 'dashboard' && (
-          <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ margin: 0, color: '#0f172a' }}>{menuItems.find(m => m.id === activeTab)?.label}</h2>
-            <p style={{ color: '#64748b' }}>Bu bölmə daxilində tezliklə əməliyyatlar aktiv olunacaq.</p>
-          </div>
-        )}
-
+        </form>
       </div>
 
+      {/* Sifarişlər Cədvəli */}
+      {loading ? (
+        <p>Yüklənir...</p>
+      ) : orders.length === 0 ? (
+        <p style={{ color: '#64748b' }}>Hələ heç bir sifariş yoxdur.</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', background: '#fff' }}>
+            <thead>
+              <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px' }}>Müştəri</th>
+                <th style={{ padding: '12px' }}>Məhsul</th>
+                <th style={{ padding: '12px' }}>Məbləğ</th>
+                <th style={{ padding: '12px' }}>Status</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>Əməliyyatlar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '12px', fontWeight: '500' }}>{order.customer}</td>
+                  <td style={{ padding: '12px' }}>{order.product}</td>
+                  <td style={{ padding: '12px' }}>{order.amount} AZN</td>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      background: order.status === 'Çatdırıldı' ? '#dcfce7' : order.status === 'Hazırlanır' ? '#fef3c7' : '#f1f5f9',
+                      color: order.status === 'Çatdırıldı' ? '#166534' : order.status === 'Hazırlanır' ? '#92400e' : '#475569'
+                    }}>
+                      {order.status || 'Gözləyir'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button 
+                      onClick={() => handleEdit(order)}
+                      style={{ padding: '6px 12px', marginRight: '6px', background: '#e0f2fe', color: '#0369a1', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(order.id)}
+                      style={{ padding: '6px 12px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
+
+// --- DİĞƏR SƏHİFƏLƏR (MÜVƏQQƏTİ) ---
+const Dashboard = () => <div style={{ padding: '20px' }}><h2>Dashboard</h2><p>Əsas göstəricilər tezliklə yerləşdiriləcək.</p></div>;
+const Stock = () => <div style={{ padding: '20px' }}><h2>Stok (Məhsullar)</h2><p>Məhsul siyahısı tezliklə yerləşdiriləcək.</p></div>;
+const Expenses = () => <div style={{ padding: '20px' }}><h2>Xərclər (Rasxod)</h2><p>Rasxodlar bölməsi tezliklə yerləşdiriləcək.</p></div>;
+const Barcode = () => <div style={{ padding: '20px' }}><h2>Barkod</h2><p>Barkod generasiyası tezliklə yerləşdiriləcək.</p></div>;
+const Reports = () => <div style={{ padding: '20px' }}><h2>Hesabatlar</h2><p>Maliyyə hesabatları tezliklə yerləşdiriləcək.</p></div>;
+const Settings = () => <div style={{ padding: '20px' }}><h2>Tənzimləmələr</h2><p>Sistem parametrləri tezliklə yerləşdiriləcək.</p></div>;
+
+// --- 2. ƏSAS LAYOUT VƏ MENYU ---
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+        {/* Sol Menyu */}
+        <div style={{ width: '240px', background: '#0f172a', color: '#fff', padding: '20px 10px' }}>
+          <h2 style={{ paddingLeft: '10px', fontSize: '20px', marginBottom: '5px' }}>Allbaffy ERP</h2>
+          <p style={{ paddingLeft: '10px', fontSize: '12px', color: '#94a3b8', marginTop: 0, marginBottom: '30px' }}>İdarəetmə Paneli</p>
+          
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Link to="/" style={linkStyle}>📊 Dashboard</Link>
+            <Link to="/orders" style={linkStyle}>📦 Sifarişlər</Link>
+            <Link to="/stock" style={linkStyle}>🧱 Stok (Məhsullar)</Link>
+            <Link to="/expenses" style={linkStyle}>💸 Xərclər (Rasxod)</Link>
+            <Link to="/barcode" style={linkStyle}>🏷️ Barkod</Link>
+            <Link to="/reports" style={linkStyle}>📈 Hesabatlar</Link>
+            <Link to="/settings" style={linkStyle}>⚙️ Tənzimləmələr</Link>
+          </nav>
+        </div>
+
+        {/* Sağ Əsas Hissə */}
+        <div style={{ flex: 1, background: '#f8fafc', minHeight: '100vh' }}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/stock" element={<Stock />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/barcode" element={<Barcode />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
+  );
+}
+
+const linkStyle = {
+  color: '#e2e8f0',
+  textDecoration: 'none',
+  padding: '10px 14px',
+  borderRadius: '8px',
+  fontSize: '14px',
+  display: 'block',
+  transition: '0.2s'
+};

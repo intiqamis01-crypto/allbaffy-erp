@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react_router_dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { db } from './firebase';
 import { 
   collection, 
@@ -16,7 +16,7 @@ function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Form sahələri
+  // Form xanaları
   const [customer, setCustomer] = useState('');
   const [product, setProduct] = useState('');
   const [amount, setAmount] = useState('');
@@ -113,7 +113,7 @@ function OrdersPage() {
       </h2>
 
       {/* Əlavə et / Edit Formu */}
-      <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+      <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h3 style={{ marginTop: 0, marginBottom: '15px', fontSize: '18px', color: '#334155' }}>
           {editingId ? '✏️ Sifarişi Redaktə Et' : '➕ Yeni Sifariş Yarat'}
         </h3>
@@ -177,10 +177,10 @@ function OrdersPage() {
       ) : orders.length === 0 ? (
         <p style={{ color: '#64748b' }}>Hələ heç bir sifariş yoxdur.</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', background: '#fff' }}>
+        <div style={{ overflowX: 'auto', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 <th style={{ padding: '12px' }}>Müştəri</th>
                 <th style={{ padding: '12px' }}>Məhsul</th>
                 <th style={{ padding: '12px' }}>Məbləğ</th>
@@ -230,7 +230,7 @@ function OrdersPage() {
   );
 }
 
-// --- DİĞƏR SƏHİFƏLƏR (MÜVƏQQƏTİ) ---
+// --- DİĞƏR SƏHİFƏLƏR ---
 const Dashboard = () => <div style={{ padding: '20px' }}><h2>Dashboard</h2><p>Əsas göstəricilər tezliklə yerləşdiriləcək.</p></div>;
 const Stock = () => <div style={{ padding: '20px' }}><h2>Stok (Məhsullar)</h2><p>Məhsul siyahısı tezliklə yerləşdiriləcək.</p></div>;
 const Expenses = () => <div style={{ padding: '20px' }}><h2>Xərclər (Rasxod)</h2><p>Rasxodlar bölməsi tezliklə yerləşdiriləcək.</p></div>;
@@ -282,6 +282,5 @@ const linkStyle = {
   padding: '10px 14px',
   borderRadius: '8px',
   fontSize: '14px',
-  display: 'block',
-  transition: '0.2s'
+  display: 'block'
 };

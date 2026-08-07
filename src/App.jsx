@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { db } from './firebase';
+import { db } from './firebase'; // Əgər firebase.js faylınız src/firebase.js-dədirsə
 import { 
   collection, 
   addDoc, 
@@ -11,10 +11,10 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 
-// --- 1. SİFARİŞLƏR SƏHİFƏSİ (EDIT FUNKSİYASI İLƏ) ---
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Form xanaları
   const [customer, setCustomer] = useState('');
@@ -25,11 +25,14 @@ function OrdersPage() {
   // Edit rejimi
   const [editingId, setEditingId] = useState(null);
 
-  const ordersRef = collection(db, 'orders');
-
   const fetchOrders = async () => {
     setLoading(true);
+    setErrorMsg('');
     try {
+      if (!db) {
+        throw new Error("Firebase bazası (db) tapılmadı. 'firebase.js' faylınızı yoxlayın.");
+      }
+      const ordersRef = collection(db, 'orders');
       const querySnapshot = await getDocs(ordersRef);
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -37,7 +40,8 @@ function OrdersPage() {
       }));
       setOrders(data);
     } catch (err) {
-      console.error("Məlumat çəkilərkən xəta:", err);
+      console.error("Xəta:", err);
+      setErrorMsg(err.message || "Məlumatları yükləyərkən xəta baş verdi.");
     }
     setLoading(false);
   };
@@ -51,6 +55,7 @@ function OrdersPage() {
     if (!customer || !product || !amount) return alert("Bütün xanaları doldurun!");
 
     try {
+      const ordersRef = collection(db, 'orders');
       if (editingId) {
         // Redaktə et (Edit)
         const orderDoc = doc(db, 'orders', editingId);
@@ -79,7 +84,7 @@ function OrdersPage() {
       setStatus('Gözləyir');
       fetchOrders();
     } catch (err) {
-      console.error(err);
+      alert("Xəta yarandı: " + err.message);
     }
   };
 
@@ -101,8 +106,12 @@ function OrdersPage() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Bu sifarişi silməyə əminsiniz?")) {
-      await deleteDoc(doc(db, 'orders', id));
-      fetchOrders();
+      try {
+        await deleteDoc(doc(db, 'orders', id));
+        fetchOrders();
+      } catch (err) {
+        alert("Silinərkən xəta yarandı: " + err.message);
+      }
     }
   };
 
@@ -111,6 +120,12 @@ function OrdersPage() {
       <h2 style={{ marginBottom: '20px', color: '#1e293b' }}>
         Sifarişlərin İdarə Olunması
       </h2>
+
+      {errorMsg && (
+        <div style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', marginBottom: '20px' }}>
+          ⚠️ {errorMsg}
+        </div>
+      )}
 
       {/* Əlavə et / Edit Formu */}
       <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -238,12 +253,10 @@ const Barcode = () => <div style={{ padding: '20px' }}><h2>Barkod</h2><p>Barkod 
 const Reports = () => <div style={{ padding: '20px' }}><h2>Hesabatlar</h2><p>Maliyyə hesabatları tezliklə yerləşdiriləcək.</p></div>;
 const Settings = () => <div style={{ padding: '20px' }}><h2>Tənzimləmələr</h2><p>Sistem parametrləri tezliklə yerləşdiriləcək.</p></div>;
 
-// --- 2. ƏSAS LAYOUT VƏ MENYU ---
 export default function App() {
   return (
     <BrowserRouter>
       <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-        {/* Sol Menyu */}
         <div style={{ width: '240px', background: '#0f172a', color: '#fff', padding: '20px 10px' }}>
           <h2 style={{ paddingLeft: '10px', fontSize: '20px', marginBottom: '5px' }}>Allbaffy ERP</h2>
           <p style={{ paddingLeft: '10px', fontSize: '12px', color: '#94a3b8', marginTop: 0, marginBottom: '30px' }}>İdarəetmə Paneli</p>
@@ -259,7 +272,6 @@ export default function App() {
           </nav>
         </div>
 
-        {/* Sağ Əsas Hissə */}
         <div style={{ flex: 1, background: '#f8fafc', minHeight: '100vh' }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />

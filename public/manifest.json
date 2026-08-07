@@ -1,0 +1,16 @@
+{
+  "short_name": "Allbaffy",
+  "name": "Allbaffy ERP",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1f1917",
+  "theme_color": "#2e2421",
+  "display": "standalone",
+  "orientation": "portrait"
+}

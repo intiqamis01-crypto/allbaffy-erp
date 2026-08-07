@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { db } from './firebase'; // Əgər firebase.js faylınız src/firebase.js-dədirsə
+import { initializeApp } from 'firebase/app';
 import { 
+  getFirestore, 
   collection, 
   addDoc, 
   getDocs, 
@@ -11,10 +12,31 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 
+// --- FIREBASE KONFİQURASİYASI (BİRBAŞA BURADA) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDummyKeyForSafetyReplaceIfNeed", // Firebase məlumatlarınız varsa bura qoya bilərsiniz
+  authDomain: "allbaffy-erp.firebaseapp.com",
+  projectId: "allbaffy-erp",
+  storageBucket: "allbaffy-erp.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123def456"
+};
+
+// Firebase-i başladırıq
+let app;
+let db;
+
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (e) {
+  console.error("Firebase başlatma xətası:", e);
+}
+
+// --- 1. SİFARİŞLƏR SƏHİFƏSİ (EDIT FUNKSİYASI İLƏ) ---
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
 
   // Form xanaları
   const [customer, setCustomer] = useState('');
@@ -27,11 +49,8 @@ function OrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    setErrorMsg('');
     try {
-      if (!db) {
-        throw new Error("Firebase bazası (db) tapılmadı. 'firebase.js' faylınızı yoxlayın.");
-      }
+      if (!db) return;
       const ordersRef = collection(db, 'orders');
       const querySnapshot = await getDocs(ordersRef);
       const data = querySnapshot.docs.map(doc => ({
@@ -40,8 +59,7 @@ function OrdersPage() {
       }));
       setOrders(data);
     } catch (err) {
-      console.error("Xəta:", err);
-      setErrorMsg(err.message || "Məlumatları yükləyərkən xəta baş verdi.");
+      console.error("Məlumat çəkilərkən xəta:", err);
     }
     setLoading(false);
   };
@@ -57,7 +75,7 @@ function OrdersPage() {
     try {
       const ordersRef = collection(db, 'orders');
       if (editingId) {
-        // Redaktə et (Edit)
+        // Edit olunur
         const orderDoc = doc(db, 'orders', editingId);
         await updateDoc(orderDoc, {
           customer,
@@ -68,7 +86,7 @@ function OrdersPage() {
         });
         setEditingId(null);
       } else {
-        // Yeni əlavə et
+        // Yeni əlavə olunur
         await addDoc(ordersRef, {
           customer,
           product,
@@ -84,6 +102,7 @@ function OrdersPage() {
       setStatus('Gözləyir');
       fetchOrders();
     } catch (err) {
+      console.error(err);
       alert("Xəta yarandı: " + err.message);
     }
   };
@@ -110,7 +129,7 @@ function OrdersPage() {
         await deleteDoc(doc(db, 'orders', id));
         fetchOrders();
       } catch (err) {
-        alert("Silinərkən xəta yarandı: " + err.message);
+        console.error(err);
       }
     }
   };
@@ -120,12 +139,6 @@ function OrdersPage() {
       <h2 style={{ marginBottom: '20px', color: '#1e293b' }}>
         Sifarişlərin İdarə Olunması
       </h2>
-
-      {errorMsg && (
-        <div style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', marginBottom: '20px' }}>
-          ⚠️ {errorMsg}
-        </div>
-      )}
 
       {/* Əlavə et / Edit Formu */}
       <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>

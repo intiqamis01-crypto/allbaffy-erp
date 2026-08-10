@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { LuPlus, LuSearch, LuPencil, LuTrash2, LuDisc } from 'react-icons/lu';
 
 const Inventory = () => {
-  // Nümunə iplər siyahısı (Alize Puffy və Alize Puffy Fine)
   const [yarns, setYarns] = useState([
     { id: 1, category: 'Alize Puffy', colorCode: '183', colorName: 'Açıq Qəhvəyi / Krem', stock: 12, price: '4.50 AZN' },
     { id: 2, category: 'Alize Puffy', colorCode: '55', colorName: 'Ağ', stock: 8, price: '4.50 AZN' },
@@ -13,7 +12,6 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Hamısı');
 
-  // Modal üçün state-lər
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newYarn, setNewYarn] = useState({
     category: 'Alize Puffy',
@@ -23,7 +21,6 @@ const Inventory = () => {
     price: '4.50 AZN'
   });
 
-  // Axtarış və Kateqoriya filtri
   const filteredYarns = yarns.filter(item => {
     const matchesSearch = item.colorCode.includes(searchTerm) || 
                           item.colorName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -31,7 +28,6 @@ const Inventory = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Yeni ip əlavə etmək
   const handleAddYarn = (e) => {
     e.preventDefault();
     if (!newYarn.colorCode) return;
@@ -50,7 +46,6 @@ const Inventory = () => {
     setNewYarn({ category: 'Alize Puffy', colorCode: '', colorName: '', stock: '', price: '4.50 AZN' });
   };
 
-  // İp silmək
   const handleDeleteYarn = (id) => {
     if (window.confirm('Bu ipi stokdan silmək istədiyinizdən əminsiniz?')) {
       setYarns(yarns.filter(item => item.id !== id));
@@ -60,7 +55,6 @@ const Inventory = () => {
   return (
     <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       
-      {/* Səhifə Başlığı və Əlavə Et Düyməsi */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#2C1D11' }}>İplər Stoku</h1>
@@ -92,10 +86,7 @@ const Inventory = () => {
         </button>
       </div>
 
-      {/* Axtarış və Filtr Paneli */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        
-        {/* Axtarış Inputu */}
         <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
           <LuSearch size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#7A624E' }} />
           <input
@@ -116,7 +107,6 @@ const Inventory = () => {
           />
         </div>
 
-        {/* Kateqoriya Filtr Düymələri */}
         <div style={{ display: 'flex', gap: '6px', backgroundColor: '#EFE7DC', padding: '4px', borderRadius: '8px', border: '1px solid #D8C8B8' }}>
           {['Hamısı', 'Alize Puffy', 'Alize Puffy Fine'].map((cat) => (
             <button
@@ -139,10 +129,8 @@ const Inventory = () => {
             </button>
           ))}
         </div>
-
       </div>
 
-      {/* İplər Cədvəli */}
       <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2D7C7', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
@@ -229,20 +217,13 @@ const Inventory = () => {
         </div>
       </div>
 
-      {/* Yeni İp Əlavə Et Modalı */}
       {isModalOpen && (
         <div style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(0,0,0,0.4)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '16px'
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '16px'
         }}>
           <div style={{
             backgroundColor: '#FFFFFF',
@@ -257,8 +238,6 @@ const Inventory = () => {
             </h2>
 
             <form onSubmit={handleAddYarn}>
-              
-              {/* İp Növü */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
                   İp Növü
@@ -267,12 +246,7 @@ const Inventory = () => {
                   value={newYarn.category}
                   onChange={(e) => setNewYarn({ ...newYarn, category: e.target.value })}
                   style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #D8C8B8',
-                    fontSize: '14px',
-                    outline: 'none'
+                    width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none'
                   }}
                 >
                   <option value="Alize Puffy">Alize Puffy</option>
@@ -280,56 +254,41 @@ const Inventory = () => {
                 </select>
               </div>
 
-              {/* Rəng Kodu */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
-                  Rəng Kodu (məsələn: 183)
+                  Rəng Kodu
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Kodu daxil edin"
+                  placeholder="Məs: 183"
                   value={newYarn.colorCode}
                   onChange={(e) => setNewYarn({ ...newYarn, colorCode: e.target.value })}
                   style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #D8C8B8',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
+                    width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
                   }}
                 />
               </div>
 
-              {/* Rəng Adı (İxtiyari) */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
                   Rəng Adı / Təsviri
                 </label>
                 <input
                   type="text"
-                  placeholder="məsələn: Krem / Açıq Bej"
+                  placeholder="Məs: Krem / Açıq Bej"
                   value={newYarn.colorName}
                   onChange={(e) => setNewYarn({ ...newYarn, colorName: e.target.value })}
                   style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #D8C8B8',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
+                    width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
                   }}
                 />
               </div>
 
-              {/* Miqdar və Qiymət */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
-                    Stok Miqdarı (Ədəd)
+                    Stok (Ədəd)
                   </label>
                   <input
                     type="number"
@@ -338,52 +297,32 @@ const Inventory = () => {
                     value={newYarn.stock}
                     onChange={(e) => setNewYarn({ ...newYarn, stock: e.target.value })}
                     style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '1px solid #D8C8B8',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
+                      width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
-                    Mavud Qiymət
+                    Qiymət
                   </label>
                   <input
                     type="text"
                     value={newYarn.price}
                     onChange={(e) => setNewYarn({ ...newYarn, price: e.target.value })}
                     style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '1px solid #D8C8B8',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
+                      width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
                     }}
                   />
                 </div>
               </div>
 
-              {/* Düymələr */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   style={{
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid #D8C8B8',
-                    backgroundColor: '#FAF7F2',
-                    color: '#4A3525',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
+                    padding: '10px 16px', borderRadius: '8px', border: '1px solid #D8C8B8', backgroundColor: '#FAF7F2', color: '#4A3525', fontSize: '13px', fontWeight: '600', cursor: 'pointer'
                   }}
                 >
                   Ləğv Et
@@ -391,20 +330,12 @@ const Inventory = () => {
                 <button
                   type="submit"
                   style={{
-                    padding: '10px 18px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    backgroundColor: '#8C6239',
-                    color: '#FFFFFF',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
+                    padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#8C6239', color: '#FFFFFF', fontSize: '13px', fontWeight: '600', cursor: 'pointer'
                   }}
                 >
                   Yadda Saxla
                 </button>
               </div>
-
             </form>
           </div>
         </div>

@@ -29,28 +29,28 @@ const Sidebar = () => {
     padding: '10px 14px',
     borderRadius: '8px',
     fontSize: '14px',
-    fontWeight: '500',
+    fontWeight: '600',
     textDecoration: 'none',
-    color: '#E8DCC4',
+    color: isActive(path) ? '#FFFFFF' : '#4A3525',
     backgroundColor: isActive(path) ? '#8C6239' : 'transparent',
-    transition: 'background-color 0.2s',
+    transition: 'all 0.2s ease',
     marginBottom: '4px'
   });
 
   return (
     <aside style={{ 
       width: '250px', 
-      backgroundColor: '#2C1D11', // Tünd qəhvəyi fon
-      color: '#E8DCC4', 
+      backgroundColor: '#EFE7DC', // Açıq krem / tünd bej
+      color: '#4A3525', 
       minHeight: '100vh', 
       flexShrink: 0, 
-      borderRight: '1px solid #3D2B1F' 
+      borderRight: '1px solid #D8C8B8' 
     }}>
       
       {/* Logo */}
-      <div style={{ padding: '20px', borderBottom: '1px solid #3D2B1F' }}>
-        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#F5EFE6' }}>Allbaffy ERP</h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#A89F91' }}>İdarəetmə Paneli</p>
+      <div style={{ padding: '20px', borderBottom: '1px solid #D8C8B8' }}>
+        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#2C1D11' }}>Allbaffy ERP</h1>
+        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#7A624E' }}>İdarəetmə Paneli</p>
       </div>
 
       {/* Menyu */}
@@ -78,10 +78,10 @@ const Sidebar = () => {
               padding: '10px 14px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: '500',
+              fontWeight: '600',
               border: 'none',
               background: 'transparent',
-              color: '#E8DCC4',
+              color: '#4A3525',
               cursor: 'pointer'
             }}
           >
@@ -93,7 +93,7 @@ const Sidebar = () => {
           </button>
 
           {isStockOpen && (
-            <div style={{ marginLeft: '20px', paddingLeft: '8px', borderLeft: '2px solid #523A2A', marginTop: '4px' }}>
+            <div style={{ marginLeft: '20px', paddingLeft: '8px', borderLeft: '2px solid #C2B09F', marginTop: '4px' }}>
               <Link to="/stock/products" style={linkStyle('/stock/products')}>
                 <LuBox size={14} />
                 <span>Məhsul</span>

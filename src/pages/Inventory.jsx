@@ -222,30 +222,30 @@ export default function Inventory() {
             {filteredYarns.length > 0 ? (
               filteredYarns.map((yarn) => (
                 <tr key={yarn.id} style={{ borderBottom: "1px solid #F7F3EC" }}>
-                  {/* NÖVÜ: BOLD VƏ BÖYÜK */}
-                  <td style={{ padding: "18px 20px", fontWeight: "700", fontSize: "16px", color: "#1A1A1A" }}>
+                  {/* NÖVÜ: NORMAL FONT VƏ AÇIQ BOZ/QƏHVƏYİ */}
+                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#7A4A21", display: "inline-block" }}></span>
                       {yarn.type}
                     </div>
                   </td>
 
-                  {/* RƏNG KODU: BOLD VƏ BÖYÜK */}
-                  <td style={{ padding: "18px 20px", fontWeight: "700", fontSize: "16px", color: "#1A1A1A" }}>
+                  {/* RƏNG KODU: NORMAL FONT VƏ AÇIQ BOZ/QƏHVƏYİ */}
+                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     KOD: {yarn.code}
                   </td>
 
-                  {/* RƏNG ADI: BOLD OLMAYAN AÇIQ BOZ / NEYTRAL */}
+                  {/* RƏNG ADI */}
                   <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     {yarn.name}
                   </td>
 
-                  {/* QİYMƏT: BOLD OLMAYAN AÇIQ BOZ / NEYTRAL */}
+                  {/* QİYMƏT */}
                   <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     {yarn.price}
                   </td>
 
-                  {/* STOK: HƏLƏLİK TƏK RƏNG (NEUTRAL SƏLİQƏLİ BADGE) */}
+                  {/* STOK */}
                   <td style={{ padding: "18px 20px" }}>
                     <span
                       style={{

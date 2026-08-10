@@ -1,30 +1,32 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
-import Orders from './pages/Orders';
-import Products from './pages/Products';
-import Expenses from './pages/Expenses';
-import Barcode from './pages/Barcode';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
 
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          {/* Əsas səhifə kimi Dashboard göstərilməlidir */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/expenses" element={<Expenses />} />
-          <Route path="/barcode" element={<Barcode />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </Layout>
+      <div className="flex min-h-screen bg-[#FAF7F2]">
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* Əsas Məzmun Hissəsi */}
+        <main className="flex-1 p-6 overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/orders" element={<div className="p-4 text-[#2C1D11] font-medium">Sifarişlər Səhifəsi</div>} />
+            <Route path="/stock/products" element={<div className="p-4 text-[#2C1D11] font-medium">Məhsul Stoku</div>} />
+            <Route path="/stock/yarns" element={<div className="p-4 text-[#2C1D11] font-medium">İplər Stoku</div>} />
+            <Route path="/stock/packaging" element={<div className="p-4 text-[#2C1D11] font-medium">Paketləmə və Promo</div>} />
+            <Route path="/purchases" element={<div className="p-4 text-[#2C1D11] font-medium">Alınanlar Səhifəsi</div>} />
+            <Route path="/expenses" element={<div className="p-4 text-[#2C1D11] font-medium">Xərclər Səhifəsi</div>} />
+            <Route path="/barcode" element={<div className="p-4 text-[#2C1D11] font-medium">Barkod Səhifəsi</div>} />
+            <Route path="/reports" element={<div className="p-4 text-[#2C1D11] font-medium">Hesabatlar Səhifəsi</div>} />
+            <Route path="/settings" element={<div className="p-4 text-[#2C1D11] font-medium">Tənzimləmələr Səhifəsi</div>} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }

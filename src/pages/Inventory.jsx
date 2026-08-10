@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { LuPlus, LuSearch, LuPencil, LuTrash2, LuDisc } from 'react-icons/lu';
+import { LuPlus, LuSearch, LuPencil, LuTrash2, LuDisc, LuX } from 'react-icons/lu';
 
 const Inventory = () => {
-  // Mövcud ip növlərinin siyahısı (dinamik olaraq yeni növlər əlavə olunca artacaq)
-  const [categories, setCategories] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Color', 'Alize Puffy More']);
+  // Mövcud ip növləri
+  const [categories, setCategories] = useState(['Alize Puffy', 'Alize Puffy Fine']);
 
   // İplər stoku
   const [yarns, setYarns] = useState([
@@ -16,10 +16,10 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Hamısı');
 
-  // Modal state-ləri
+  // Modal State-ləri
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [customCategoryInput, setCustomCategoryInput] = useState('');
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const [newYarn, setNewYarn] = useState({
     category: 'Alize Puffy',
@@ -37,39 +37,28 @@ const Inventory = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Selekt dəyişdikdə
-  const handleCategorySelectChange = (e) => {
-    const value = e.target.value;
-    if (value === 'NEW_CATEGORY') {
-      setIsCustomCategory(true);
-      setNewYarn({ ...newYarn, category: '' });
-    } else {
-      setIsCustomCategory(false);
-      setNewYarn({ ...newYarn, category: value });
+  // Yeni xüsusi kateqoriya əlavə etmək
+  const handleAddNewCategory = (e) => {
+    e.preventDefault();
+    const trimmed = newCategoryName.trim();
+    if (trimmed) {
+      if (!categories.includes(trimmed)) {
+        setCategories([...categories, trimmed]);
+      }
+      setNewYarn({ ...newYarn, category: trimmed });
+      setNewCategoryName('');
+      setIsAddingNewCategory(false);
     }
   };
 
   // Yeni ip əlavə etmək
   const handleAddYarn = (e) => {
     e.preventDefault();
-    
-    let finalCategory = newYarn.category;
-
-    if (isCustomCategory) {
-      if (!customCategoryInput.trim()) return;
-      finalCategory = customCategoryInput.trim();
-      
-      // Əgər siyahıda yoxdursa, yeni kateqoriyanı siyahıya əlavə et
-      if (!categories.includes(finalCategory)) {
-        setCategories([...categories, finalCategory]);
-      }
-    }
-
     if (!newYarn.colorCode) return;
 
     const item = {
       id: Date.now(),
-      category: finalCategory,
+      category: newYarn.category || categories[0],
       colorCode: newYarn.colorCode,
       colorName: newYarn.colorName || '-',
       stock: Number(newYarn.stock) || 0,
@@ -77,15 +66,12 @@ const Inventory = () => {
     };
 
     setYarns([item, ...yarns]);
-    
-    // Modalı sıfırla və bağla
     setIsModalOpen(false);
-    setIsCustomCategory(false);
-    setCustomCategoryInput('');
-    setNewYarn({ category: 'Alize Puffy', colorCode: '', colorName: '', stock: '', price: '4.50 AZN' });
+    setIsAddingNewCategory(false);
+    setNewYarn({ category: categories[0], colorCode: '', colorName: '', stock: '', price: '4.50 AZN' });
   };
 
-  // İp silmək
+  // Silmək
   const handleDeleteYarn = (id) => {
     if (window.confirm('Bu ipi stokdan silmək istədiyinizdən əminsiniz?')) {
       setYarns(yarns.filter(item => item.id !== id));
@@ -108,7 +94,7 @@ const Inventory = () => {
           type="button"
           onClick={() => {
             setIsModalOpen(true);
-            setIsCustomCategory(false);
+            setIsAddingNewCategory(false);
           }}
           style={{
             display: 'inline-flex',
@@ -291,16 +277,35 @@ const Inventory = () => {
 
             <form onSubmit={handleAddYarn}>
               
-              {/* İp Növü Seçimi */}
+              {/* İp Növü Bölməsi */}
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
-                  İp Növü
-                </label>
-                
-                {!isCustomCategory ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4A3525' }}>
+                    İp Növü
+                  </label>
+                  {!isAddingNewCategory && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingNewCategory(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#8C6239',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                    >
+                      + Yeni növ daxil et
+                    </button>
+                  )}
+                </div>
+
+                {!isAddingNewCategory ? (
                   <select
                     value={newYarn.category}
-                    onChange={handleCategorySelectChange}
+                    onChange={(e) => setNewYarn({ ...newYarn, category: e.target.value })}
                     style={{
                       width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', backgroundColor: '#FFFFFF'
                     }}
@@ -308,30 +313,35 @@ const Inventory = () => {
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
-                    <option value="NEW_CATEGORY" style={{ fontWeight: 'bold', color: '#8C6239' }}>
-                      + Yeni İp Növü Əlavə Et...
-                    </option>
                   </select>
                 ) : (
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <input
                       type="text"
-                      required
                       placeholder="Məs: Alize Puffy Color"
-                      value={customCategoryInput}
-                      onChange={(e) => setCustomCategoryInput(e.target.value)}
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
                       style={{
-                        flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #8C6239', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
+                        flex: 1, padding: '8px 10px', borderRadius: '8px', border: '1px solid #8C6239', fontSize: '13px', outline: 'none'
                       }}
                     />
                     <button
                       type="button"
-                      onClick={() => setIsCustomCategory(false)}
+                      onClick={handleAddNewCategory}
                       style={{
-                        padding: '10px 12px', borderRadius: '8px', border: '1px solid #D8C8B8', backgroundColor: '#FAF7F2', color: '#4A3525', fontSize: '12px', cursor: 'pointer'
+                        padding: '8px 12px', borderRadius: '8px', border: 'none', backgroundColor: '#8C6239', color: '#FFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer'
                       }}
                     >
-                      Siyahıdan seç
+                      Əlavə Et
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingNewCategory(false)}
+                      style={{
+                        padding: '8px', borderRadius: '8px', border: '1px solid #D8C8B8', backgroundColor: '#FAF7F2', color: '#4A3525', cursor: 'pointer'
+                      }}
+                    >
+                      <LuX size={16} />
                     </button>
                   </div>
                 )}

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-down'; // Və ya react-router-dom
-import { Link as RouterLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LuLayoutDashboard, 
   LuShoppingCart, 
@@ -25,18 +24,13 @@ const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-[#2C1D11] text-[#E8DCC4] flex flex-col min-h-screen shrink-0 border-r border-[#3D2B1F] shadow-lg">
-      
-      {/* Logo / Brend */}
       <div className="p-5 border-b border-[#3D2B1F]">
         <h1 className="text-xl font-bold text-[#F5EFE6] tracking-wide">Allbaffy ERP</h1>
         <p className="text-xs text-[#A89F91] mt-0.5">İdarəetmə Paneli</p>
       </div>
 
-      {/* Menyu Keçidləri */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-        
-        {/* Dashboard */}
-        <RouterLink
+        <Link
           to="/"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/') || isActive('/dashboard')
@@ -46,10 +40,9 @@ const Sidebar = () => {
         >
           <LuLayoutDashboard className="text-lg" />
           <span>Dashboard</span>
-        </RouterLink>
+        </Link>
 
-        {/* Sifarişlər */}
-        <RouterLink
+        <Link
           to="/orders"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/orders')
@@ -59,9 +52,8 @@ const Sidebar = () => {
         >
           <LuShoppingCart className="text-lg" />
           <span>Sifarişlər</span>
-        </RouterLink>
+        </Link>
 
-        {/* Stock (Alt menyulu) */}
         <div>
           <button
             onClick={() => setIsStockOpen(!isStockOpen)}
@@ -76,7 +68,7 @@ const Sidebar = () => {
 
           {isStockOpen && (
             <div className="ml-6 mt-1 space-y-1 border-l-2 border-[#523A2A] pl-2">
-              <RouterLink
+              <Link
                 to="/stock/products"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition ${
                   isActive('/stock/products') ? 'bg-[#8C6239] text-white' : 'hover:bg-[#3D2B1F] text-[#C4B7A6]'
@@ -84,9 +76,9 @@ const Sidebar = () => {
               >
                 <LuBox />
                 <span>Məhsul</span>
-              </RouterLink>
+              </Link>
 
-              <RouterLink
+              <Link
                 to="/stock/yarns"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition ${
                   isActive('/stock/yarns') ? 'bg-[#8C6239] text-white' : 'hover:bg-[#3D2B1F] text-[#C4B7A6]'
@@ -94,9 +86,9 @@ const Sidebar = () => {
               >
                 <LuDisc />
                 <span>İplər</span>
-              </RouterLink>
+              </Link>
 
-              <RouterLink
+              <Link
                 to="/stock/packaging"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition ${
                   isActive('/stock/packaging') ? 'bg-[#8C6239] text-white' : 'hover:bg-[#3D2B1F] text-[#C4B7A6]'
@@ -104,13 +96,12 @@ const Sidebar = () => {
               >
                 <LuGift />
                 <span>Paketləmə məhsulları və promo</span>
-              </RouterLink>
+              </Link>
             </div>
           )}
         </div>
 
-        {/* Alınan */}
-        <RouterLink
+        <Link
           to="/purchases"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/purchases')
@@ -120,10 +111,9 @@ const Sidebar = () => {
         >
           <LuShoppingBag className="text-lg" />
           <span>Alınan</span>
-        </RouterLink>
+        </Link>
 
-        {/* Xərc */}
-        <RouterLink
+        <Link
           to="/expenses"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/expenses')
@@ -133,10 +123,9 @@ const Sidebar = () => {
         >
           <LuReceipt className="text-lg" />
           <span>Xərc</span>
-        </RouterLink>
+        </Link>
 
-        {/* Barkod */}
-        <RouterLink
+        <Link
           to="/barcode"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/barcode')
@@ -146,10 +135,9 @@ const Sidebar = () => {
         >
           <LuBarcode className="text-lg" />
           <span>Barkod</span>
-        </RouterLink>
+        </Link>
 
-        {/* Hesabat */}
-        <RouterLink
+        <Link
           to="/reports"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
             isActive('/reports')
@@ -159,10 +147,9 @@ const Sidebar = () => {
         >
           <LuBarChart2 className="text-lg" />
           <span>Hesabat</span>
-        </RouterLink>
+        </Link>
 
-        {/* Tənzimləmələr */}
-        <RouterLink
+        <Link
           to="/settings"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition mt-4 ${
             isActive('/settings')
@@ -172,8 +159,7 @@ const Sidebar = () => {
         >
           <LuSettings className="text-lg" />
           <span>Tənzimləmələr</span>
-        </RouterLink>
-
+        </Link>
       </nav>
     </aside>
   );

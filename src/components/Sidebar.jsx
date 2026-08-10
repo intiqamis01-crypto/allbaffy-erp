@@ -38,7 +38,14 @@ const Sidebar = () => {
   });
 
   return (
-    <aside style={{ width: '250px', backgroundColor: '#2C1D11', color: '#E8DCC4', minHeight: '100vh', flexShrink: 0, borderRight: '1px solid #3D2B1F' }}>
+    <aside style={{ 
+      width: '250px', 
+      backgroundColor: '#2C1D11', // Tünd qəhvəyi fon
+      color: '#E8DCC4', 
+      minHeight: '100vh', 
+      flexShrink: 0, 
+      borderRight: '1px solid #3D2B1F' 
+    }}>
       
       {/* Logo */}
       <div style={{ padding: '20px', borderBottom: '1px solid #3D2B1F' }}>

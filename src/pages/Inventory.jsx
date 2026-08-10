@@ -8,12 +8,18 @@ export default function Inventory() {
     { id: 4, type: "Alize Puffy Fine", code: "60", name: "Qara", price: "4.50 AZN", stock: 2 },
   ]);
 
+  // Dinamik İp Növləri Siyahısı
+  const [categories, setCategories] = useState(["Alize Puffy", "Alize Puffy Fine"]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Hamısı");
 
   // Modal State-ləri
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingYarn, setEditingYarn] = useState(null);
+  const [isAddingNewType, setIsAddingNewType] = useState(false);
+  const [customTypeInput, setCustomTypeInput] = useState("");
+
   const [formData, setFormData] = useState({
     type: "Alize Puffy",
     code: "",
@@ -22,7 +28,7 @@ export default function Inventory() {
     stock: "",
   });
 
-  // HƏR ŞEYƏ GÖRƏ AXTARIŞ (Növü, Kodu, Adı, Qiyməti)
+  // Axtarış Və Filtr
   const filteredYarns = yarns.filter((yarn) => {
     const query = searchTerm.toLowerCase().trim();
 
@@ -42,12 +48,16 @@ export default function Inventory() {
   // Modal Açılışları
   const openAddModal = () => {
     setEditingYarn(null);
-    setFormData({ type: "Alize Puffy", code: "", name: "", price: "4.50 AZN", stock: "" });
+    setIsAddingNewType(false);
+    setCustomTypeInput("");
+    setFormData({ type: categories[0] || "Alize Puffy", code: "", name: "", price: "4.50 AZN", stock: "" });
     setIsModalOpen(true);
   };
 
   const openEditModal = (yarn) => {
     setEditingYarn(yarn);
+    setIsAddingNewType(false);
+    setCustomTypeInput("");
     setFormData({
       type: yarn.type,
       code: yarn.code,
@@ -61,11 +71,47 @@ export default function Inventory() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingYarn(null);
+    setIsAddingNewType(false);
+  };
+
+  // İp Növü Dəyişəndə
+  const handleTypeSelectChange = (e) => {
+    const val = e.target.value;
+    if (val === "NEW_TYPE") {
+      setIsAddingNewType(true);
+    } else {
+      setIsAddingNewType(false);
+      setFormData({ ...formData, type: val });
+    }
+  };
+
+  // Yangı İp Növünü Əlavə Et
+  const handleAddNewType = () => {
+    const trimmed = customTypeInput.trim();
+    if (trimmed && !categories.includes(trimmed)) {
+      setCategories([...categories, trimmed]);
+      setFormData({ ...formData, type: trimmed });
+      setIsAddingNewType(false);
+      setCustomTypeInput("");
+    }
   };
 
   // Form Yadda Saxlama
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    let finalType = formData.type;
+    if (isAddingNewType) {
+      if (!customTypeInput.trim()) {
+        alert("Xahiş olunur yeni ip növünün adını qeyd edin!");
+        return;
+      }
+      finalType = customTypeInput.trim();
+      if (!categories.includes(finalType)) {
+        setCategories([...categories, finalType]);
+      }
+    }
+
     if (!formData.code.trim() || !formData.name.trim() || !formData.stock) {
       alert("Xahiş olunur Rəng Kodu, Rəng Adı və Stok xanalarını doldurun!");
       return;
@@ -74,13 +120,16 @@ export default function Inventory() {
     if (editingYarn) {
       setYarns(
         yarns.map((item) =>
-          item.id === editingYarn.id ? { ...item, ...formData, stock: Number(formData.stock) } : item
+          item.id === editingYarn.id
+            ? { ...item, ...formData, type: finalType, stock: Number(formData.stock) }
+            : item
         )
       );
     } else {
       const newYarn = {
         id: Date.now(),
         ...formData,
+        type: finalType,
         stock: Number(formData.stock),
       };
       setYarns([newYarn, ...yarns]);
@@ -140,8 +189,8 @@ export default function Inventory() {
           }}
         />
 
-        <div style={{ backgroundColor: "#EFE6D8", padding: "4px", borderRadius: "10px", display: "flex", gap: "4px" }}>
-          {["Hamısı", "Alize Puffy", "Alize Puffy Fine"].map((cat) => (
+        <div style={{ backgroundColor: "#EFE6D8", padding: "4px", borderRadius: "10px", display: "flex", gap: "4px", flexWrap: "wrap" }}>
+          {["Hamısı", ...categories].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
@@ -263,6 +312,8 @@ export default function Inventory() {
               padding: "24px",
               borderRadius: "16px",
               width: "420px",
+              maxHeight: "90vh",
+              overflowY: "auto",
               boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
             }}
           >
@@ -270,73 +321,175 @@ export default function Inventory() {
               {editingYarn ? "İpi Redaktə Et" : "Yeni İp Əlavə Et"}
             </h2>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* İP NÖVÜ */}
               <div>
-                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>İp Növü</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "6px" }}>
+                  İp Növü
+                </label>
                 <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
+                  value={isAddingNewType ? "NEW_TYPE" : formData.type}
+                  onChange={handleTypeSelectChange}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    boxSizing: "border-box",
+                    backgroundColor: "#FFF",
+                  }}
                 >
-                  <option value="Alize Puffy">Alize Puffy</option>
-                  <option value="Alize Puffy Fine">Alize Puffy Fine</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                  <option value="NEW_TYPE" style={{ fontWeight: "bold", color: "#7A4A21" }}>
+                    + Yeni İp Növü Əlavə Et...
+                  </option>
                 </select>
+
+                {/* YENİ İP NÖVÜ YAZMAQ ÜÇÜN İNPUT */}
+                {isAddingNewType && (
+                  <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                    <input
+                      type="text"
+                      placeholder="Yeni ip növünün adı (Məs: Alize Velluto)"
+                      value={customTypeInput}
+                      onChange={(e) => setCustomTypeInput(e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 10px",
+                        borderRadius: "8px",
+                        border: "1px solid #7A4A21",
+                        fontSize: "13px",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddNewType}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        border: "none",
+                        backgroundColor: "#7A4A21",
+                        color: "#FFF",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Əlavə et
+                    </button>
+                  </div>
+                )}
               </div>
 
+              {/* RƏNG KODU */}
               <div>
-                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Rəng Kodu</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "6px" }}>
+                  Rəng Kodu
+                </label>
                 <input
                   type="text"
                   placeholder="Məs: 183"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
+              {/* RƏNG ADI */}
               <div>
-                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Rəng Adı</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "6px" }}>
+                  Rəng Adı
+                </label>
                 <input
                   type="text"
                   placeholder="Məs: Açıq Qəhvəyi / Krem"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
+              {/* QİYMƏT */}
               <div>
-                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Qiymət</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "6px" }}>
+                  Qiymət
+                </label>
                 <input
                   type="text"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
+              {/* STOK */}
               <div>
-                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Stok (Ədəd)</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "6px" }}>
+                  Stok (Ədəd)
+                </label>
                 <input
                   type="number"
                   placeholder="Məs: 10"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
+              {/* DÜYMƏLƏR */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
                 <button
                   type="button"
                   onClick={closeModal}
-                  style={{ padding: "9px 18px", borderRadius: "8px", border: "1px solid #E2D7C7", backgroundColor: "#FFF", cursor: "pointer" }}
+                  style={{
+                    padding: "9px 18px",
+                    borderRadius: "8px",
+                    border: "1px solid #E2D7C7",
+                    backgroundColor: "#FFF",
+                    cursor: "pointer",
+                  }}
                 >
                   Ləğv et
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: "9px 18px", borderRadius: "8px", border: "none", backgroundColor: "#7A4A21", color: "#FFF", fontWeight: "600", cursor: "pointer" }}
+                  style={{
+                    padding: "9px 18px",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: "#7A4A21",
+                    color: "#FFF",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
                 >
                   Yadda saxla
                 </button>

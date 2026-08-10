@@ -209,7 +209,7 @@ export default function Inventory() {
       <div style={{ backgroundColor: "#FFF", borderRadius: "14px", border: "1px solid #EFE8DC", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid #EFE8DC", backgroundColor: "#FAF7F2", color: "#6B5A4C", fontSize: "14px", fontWeight: "600" }}>
+            <tr style={{ borderBottom: "1px solid #EFE8DC", backgroundColor: "#FAF7F2", color: "#70665C", fontSize: "14px", fontWeight: "600" }}>
               <th style={{ padding: "18px 20px" }}>Növü</th>
               <th style={{ padding: "18px 20px" }}>Rəng Kodu</th>
               <th style={{ padding: "18px 20px" }}>Rəng Adı</th>
@@ -235,36 +235,36 @@ export default function Inventory() {
                     KOD: {yarn.code}
                   </td>
 
-                  {/* RƏNG ADI: AÇIQ OXUNAN TÜND QARA */}
-                  <td style={{ padding: "18px 20px", fontSize: "15px", color: "#1A1A1A" }}>
+                  {/* RƏNG ADI: BOLD OLMAYAN AÇIQ BOZ / NEYTRAL */}
+                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     {yarn.name}
                   </td>
 
-                  {/* QİYMƏT */}
-                  <td style={{ padding: "18px 20px", fontWeight: "700", fontSize: "15px", color: "#1A1A1A" }}>
+                  {/* QİYMƏT: BOLD OLMAYAN AÇIQ BOZ / NEYTRAL */}
+                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     {yarn.price}
                   </td>
 
-                  {/* STOK */}
+                  {/* STOK: HƏLƏLİK TƏK RƏNG (NEUTRAL SƏLİQƏLİ BADGE) */}
                   <td style={{ padding: "18px 20px" }}>
                     <span
                       style={{
-                        padding: "4px 12px",
+                        padding: "5px 14px",
                         borderRadius: "20px",
                         fontSize: "13px",
-                        fontWeight: "600",
-                        backgroundColor: yarn.stock < 3 ? "#FEE2E2" : "#D1FAE5",
-                        color: yarn.stock < 3 ? "#DC2626" : "#059669",
+                        fontWeight: "500",
+                        backgroundColor: "#F3EFEA",
+                        color: "#5A4E43",
+                        display: "inline-block",
                       }}
                     >
                       {yarn.stock} ədəd
                     </span>
                   </td>
 
-                  {/* ƏMƏLİYYATLAR: SADƏ MİNİMAL İKONLAR */}
+                  {/* ƏMƏLİYYATLAR */}
                   <td style={{ padding: "18px 20px", textAlign: "center" }}>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px" }}>
-                      {/* Redaktə ikonu */}
                       <button
                         onClick={() => openEditModal(yarn)}
                         title="Redaktə et"
@@ -275,8 +275,7 @@ export default function Inventory() {
                           padding: "4px",
                           display: "flex",
                           alignItems: "center",
-                          color: "#6B5A4C",
-                          opacity: 0.8,
+                          color: "#8A7D71",
                         }}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -285,7 +284,6 @@ export default function Inventory() {
                         </svg>
                       </button>
 
-                      {/* Sil ikonu */}
                       <button
                         onClick={() => handleDelete(yarn.id)}
                         title="Sil"
@@ -296,8 +294,7 @@ export default function Inventory() {
                           padding: "4px",
                           display: "flex",
                           alignItems: "center",
-                          color: "#999",
-                          opacity: 0.8,
+                          color: "#A09589",
                         }}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

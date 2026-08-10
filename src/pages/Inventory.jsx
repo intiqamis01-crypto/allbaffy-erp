@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { LuPlus, LuSearch, LuPencil, LuTrash2, LuDisc } from 'react-icons/lu';
 
 const Inventory = () => {
+  // Mövcud ip növlərinin siyahısı (dinamik olaraq yeni növlər əlavə olunca artacaq)
+  const [categories, setCategories] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Color', 'Alize Puffy More']);
+
+  // İplər stoku
   const [yarns, setYarns] = useState([
     { id: 1, category: 'Alize Puffy', colorCode: '183', colorName: 'Açıq Qəhvəyi / Krem', stock: 12, price: '4.50 AZN' },
     { id: 2, category: 'Alize Puffy', colorCode: '55', colorName: 'Ağ', stock: 8, price: '4.50 AZN' },
@@ -12,7 +16,11 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Hamısı');
 
+  // Modal state-ləri
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
+
   const [newYarn, setNewYarn] = useState({
     category: 'Alize Puffy',
     colorCode: '',
@@ -21,6 +29,7 @@ const Inventory = () => {
     price: '4.50 AZN'
   });
 
+  // Axtarış və Filtr
   const filteredYarns = yarns.filter(item => {
     const matchesSearch = item.colorCode.includes(searchTerm) || 
                           item.colorName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -28,13 +37,39 @@ const Inventory = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Selekt dəyişdikdə
+  const handleCategorySelectChange = (e) => {
+    const value = e.target.value;
+    if (value === 'NEW_CATEGORY') {
+      setIsCustomCategory(true);
+      setNewYarn({ ...newYarn, category: '' });
+    } else {
+      setIsCustomCategory(false);
+      setNewYarn({ ...newYarn, category: value });
+    }
+  };
+
+  // Yeni ip əlavə etmək
   const handleAddYarn = (e) => {
     e.preventDefault();
+    
+    let finalCategory = newYarn.category;
+
+    if (isCustomCategory) {
+      if (!customCategoryInput.trim()) return;
+      finalCategory = customCategoryInput.trim();
+      
+      // Əgər siyahıda yoxdursa, yeni kateqoriyanı siyahıya əlavə et
+      if (!categories.includes(finalCategory)) {
+        setCategories([...categories, finalCategory]);
+      }
+    }
+
     if (!newYarn.colorCode) return;
 
     const item = {
       id: Date.now(),
-      category: newYarn.category,
+      category: finalCategory,
       colorCode: newYarn.colorCode,
       colorName: newYarn.colorName || '-',
       stock: Number(newYarn.stock) || 0,
@@ -42,10 +77,15 @@ const Inventory = () => {
     };
 
     setYarns([item, ...yarns]);
+    
+    // Modalı sıfırla və bağla
     setIsModalOpen(false);
+    setIsCustomCategory(false);
+    setCustomCategoryInput('');
     setNewYarn({ category: 'Alize Puffy', colorCode: '', colorName: '', stock: '', price: '4.50 AZN' });
   };
 
+  // İp silmək
   const handleDeleteYarn = (id) => {
     if (window.confirm('Bu ipi stokdan silmək istədiyinizdən əminsiniz?')) {
       setYarns(yarns.filter(item => item.id !== id));
@@ -55,17 +95,21 @@ const Inventory = () => {
   return (
     <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       
+      {/* Başlıq və Düymə */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#2C1D11' }}>İplər Stoku</h1>
           <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#7A624E' }}>
-            Alize Puffy və Alize Puffy Fine iplərinin rəng kodu və stok idarəetməsi
+            Alize Puffy və digər iplərin rəng kodu və stok idarəetməsi
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsModalOpen(true);
+            setIsCustomCategory(false);
+          }}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -86,7 +130,10 @@ const Inventory = () => {
         </button>
       </div>
 
+      {/* Axtarış və Filtr */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        
+        {/* Axtarış İnputu */}
         <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
           <LuSearch size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#7A624E' }} />
           <input
@@ -107,8 +154,9 @@ const Inventory = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '6px', backgroundColor: '#EFE7DC', padding: '4px', borderRadius: '8px', border: '1px solid #D8C8B8' }}>
-          {['Hamısı', 'Alize Puffy', 'Alize Puffy Fine'].map((cat) => (
+        {/* Tab Filtri */}
+        <div style={{ display: 'flex', gap: '6px', backgroundColor: '#EFE7DC', padding: '4px', borderRadius: '8px', border: '1px solid #D8C8B8', overflowX: 'auto' }}>
+          {['Hamısı', ...categories].map((cat) => (
             <button
               key={cat}
               type="button"
@@ -120,6 +168,7 @@ const Inventory = () => {
                 fontSize: '13px',
                 fontWeight: '600',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
                 backgroundColor: selectedCategory === cat ? '#8C6239' : 'transparent',
                 color: selectedCategory === cat ? '#FFFFFF' : '#4A3525',
                 transition: 'all 0.2s ease'
@@ -129,8 +178,10 @@ const Inventory = () => {
             </button>
           ))}
         </div>
+
       </div>
 
+      {/* İplər Cədvəli */}
       <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2D7C7', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
@@ -217,6 +268,7 @@ const Inventory = () => {
         </div>
       </div>
 
+      {/* Modal */}
       {isModalOpen && (
         <div style={{
           position: 'fixed',
@@ -238,22 +290,54 @@ const Inventory = () => {
             </h2>
 
             <form onSubmit={handleAddYarn}>
+              
+              {/* İp Növü Seçimi */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
                   İp Növü
                 </label>
-                <select
-                  value={newYarn.category}
-                  onChange={(e) => setNewYarn({ ...newYarn, category: e.target.value })}
-                  style={{
-                    width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none'
-                  }}
-                >
-                  <option value="Alize Puffy">Alize Puffy</option>
-                  <option value="Alize Puffy Fine">Alize Puffy Fine</option>
-                </select>
+                
+                {!isCustomCategory ? (
+                  <select
+                    value={newYarn.category}
+                    onChange={handleCategorySelectChange}
+                    style={{
+                      width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D8C8B8', fontSize: '14px', outline: 'none', backgroundColor: '#FFFFFF'
+                    }}
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="NEW_CATEGORY" style={{ fontWeight: 'bold', color: '#8C6239' }}>
+                      + Yeni İp Növü Əlavə Et...
+                    </option>
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Məs: Alize Puffy Color"
+                      value={customCategoryInput}
+                      onChange={(e) => setCustomCategoryInput(e.target.value)}
+                      style={{
+                        flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #8C6239', fontSize: '14px', outline: 'none', boxSizing: 'border-box'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomCategory(false)}
+                      style={{
+                        padding: '10px 12px', borderRadius: '8px', border: '1px solid #D8C8B8', backgroundColor: '#FAF7F2', color: '#4A3525', fontSize: '12px', cursor: 'pointer'
+                      }}
+                    >
+                      Siyahıdan seç
+                    </button>
+                  </div>
+                )}
               </div>
 
+              {/* Rəng Kodu */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
                   Rəng Kodu
@@ -270,6 +354,7 @@ const Inventory = () => {
                 />
               </div>
 
+              {/* Rəng Adı */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
                   Rəng Adı / Təsviri
@@ -285,6 +370,7 @@ const Inventory = () => {
                 />
               </div>
 
+              {/* Stok və Qiymət */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4A3525', marginBottom: '6px' }}>
@@ -317,6 +403,7 @@ const Inventory = () => {
                 </div>
               </div>
 
+              {/* Düymələr */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button
                   type="button"

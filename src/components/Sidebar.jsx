@@ -40,7 +40,7 @@ const Sidebar = () => {
   return (
     <aside style={{ 
       width: '250px', 
-      backgroundColor: '#EFE7DC', // Açıq krem / tünd bej
+      backgroundColor: '#EFE7DC', 
       color: '#4A3525', 
       minHeight: '100vh', 
       flexShrink: 0, 
@@ -57,7 +57,7 @@ const Sidebar = () => {
       <nav style={{ padding: '16px' }}>
         <Link to="/" style={linkStyle('/')}>
           <LuLayoutDashboard size={18} />
-          <span>Dashboard</span>
+          <span>Əsas Səhifə</span>
         </Link>
 
         <Link to="/orders" style={linkStyle('/orders')}>

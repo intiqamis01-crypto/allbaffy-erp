@@ -7,7 +7,7 @@ import {
   LuShoppingBag,
   LuReceipt, 
   LuBarcode, 
-  LuBarChart2, 
+  LuBarChart3, 
   LuSettings, 
   LuChevronDown, 
   LuChevronRight,
@@ -156,7 +156,7 @@ const Sidebar = () => {
               : 'hover:bg-[#3D2B1F] text-[#E8DCC4]'
           }`}
         >
-          <LuBarChart2 className="text-lg" />
+          <LuBarChart3 className="text-lg" />
           <span>Hesabat</span>
         </Link>
 

@@ -24,12 +24,17 @@ const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-[#2C1D11] text-[#E8DCC4] flex flex-col min-h-screen shrink-0 border-r border-[#3D2B1F] shadow-lg">
+      
+      {/* Logo / Brend */}
       <div className="p-5 border-b border-[#3D2B1F]">
         <h1 className="text-xl font-bold text-[#F5EFE6] tracking-wide">Allbaffy ERP</h1>
         <p className="text-xs text-[#A89F91] mt-0.5">İdarəetmə Paneli</p>
       </div>
 
+      {/* Menyu Keçidləri */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        
+        {/* Dashboard */}
         <Link
           to="/"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -42,6 +47,7 @@ const Sidebar = () => {
           <span>Dashboard</span>
         </Link>
 
+        {/* Sifarişlər */}
         <Link
           to="/orders"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -54,6 +60,7 @@ const Sidebar = () => {
           <span>Sifarişlər</span>
         </Link>
 
+        {/* Stock (Alt menyulu) */}
         <div>
           <button
             onClick={() => setIsStockOpen(!isStockOpen)}
@@ -101,6 +108,7 @@ const Sidebar = () => {
           )}
         </div>
 
+        {/* Alınan */}
         <Link
           to="/purchases"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -113,6 +121,7 @@ const Sidebar = () => {
           <span>Alınan</span>
         </Link>
 
+        {/* Xərc */}
         <Link
           to="/expenses"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -125,6 +134,7 @@ const Sidebar = () => {
           <span>Xərc</span>
         </Link>
 
+        {/* Barkod */}
         <Link
           to="/barcode"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -137,6 +147,7 @@ const Sidebar = () => {
           <span>Barkod</span>
         </Link>
 
+        {/* Hesabat */}
         <Link
           to="/reports"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
@@ -149,6 +160,7 @@ const Sidebar = () => {
           <span>Hesabat</span>
         </Link>
 
+        {/* Tənzimləmələr */}
         <Link
           to="/settings"
           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition mt-4 ${
@@ -160,6 +172,7 @@ const Sidebar = () => {
           <LuSettings className="text-lg" />
           <span>Tənzimləmələr</span>
         </Link>
+
       </nav>
     </aside>
   );

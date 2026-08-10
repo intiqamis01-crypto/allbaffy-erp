@@ -1,13 +1,19 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-export default function Layout({ children }) {
+const Layout = () => {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f8fafc' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAF7F2' }}>
+      {/* Sol menyu */}
       <Sidebar />
-      <main style={{ flex: 1, padding: '30px' }}>
-        {children}
+
+      {/* Seçilən səhifənin məzmunu burada görünəcək */}
+      <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+        <Outlet />
       </main>
     </div>
   );
-}
+};
+
+export default Layout;

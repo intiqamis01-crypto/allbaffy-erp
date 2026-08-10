@@ -1,5 +1,81 @@
 import React, { useState } from "react";
 
+// Rəng adından Avtomatik HEX Rəng Kodunu Müəyyən Edən Funksiya
+const getColorFromText = (text) => {
+  if (!text) return "#E8C8D5"; // Defolt çəhrayı/bej ton
+
+  const str = text.toLowerCase();
+
+  if (str.includes("ağ") || str.includes("ag") || str.includes("beyaz")) return "#F5F5F5";
+  if (str.includes("qara")) return "#333333";
+  if (str.includes("sarı") || str.includes("sari") || str.includes("limon")) return "#FAD02C";
+  if (str.includes("xardal")) return "#E3A857";
+  if (str.includes("qırmızı") || str.includes("qirmizi")) return "#E63946";
+  if (str.includes("bordo")) return "#800020";
+  if (str.includes("narıncı") || str.includes("narinci") || str.includes("oranj")) return "#F9844A";
+  if (str.includes("çəhrayı") || str.includes("cehrayi") || str.includes("pudra")) return "#F4ACB7";
+  if (str.includes("fuchsia") || str.includes("fuşya")) return "#D81B60";
+  if (str.includes("bənövşəyi") || str.includes("benovseyi") || str.includes("leylak")) return "#B5838D";
+  if (str.includes("açıq mavi") || str.includes("buz") || str.includes("körpə mavi")) return "#A0C4FF";
+  if (str.includes("səma") || str.includes("mavi")) return "#4EA8DE";
+  if (str.includes("göy") || str.includes("goy") || str.includes("lacivert")) return "#1D3557";
+  if (str.includes("su yaşılı") || str.includes("nanə") || str.includes("nane")) return "#B7E4C7";
+  if (str.includes("fıstıq") || str.includes("fistiq")) return "#99E2B4";
+  if (str.includes("yaşıl") || str.includes("yasil")) return "#52B788";
+  if (str.includes("xaki")) return "#6B705C";
+  if (str.includes("krem") || str.includes("ekru") || str.includes("süd")) return "#FFF8E7";
+  if (str.includes("açıq bej") || str.includes("qum")) return "#E6D5B8";
+  if (str.includes("bej")) return "#D4B996";
+  if (str.includes("vizon")) return "#C3A995";
+  if (str.includes("açıq qəhvəyi") || str.includes("dəvə")) return "#C68B59";
+  if (str.includes("qəhvəyi") || str.includes("qehveyi") || str.includes("şokolad")) return "#7F4F24";
+  if (str.includes("açıq boz")) return "#E0E0E0";
+  if (str.includes("boz")) return "#A8A29E";
+  if (str.includes("kömür")) return "#4A4E69";
+
+  return "#D4B996";
+};
+
+// Orijinal Alize Puffy Şəkli Əsasında Dinamik Rənglənən Komponent
+const RealYarnBall = ({ colorName }) => {
+  const hexColor = getColorFromText(colorName);
+
+  // Şəklin linki (Alize Puffy Orijinal Şəkli)
+  const imageUrl = "https://images.unsplash.com/photo-1608248597379-537558133503?auto=format&fit=crop&q=80&w=200"; // Həqiqi yumaq forması
+
+  return (
+    <div
+      style={{
+        width: "52px",
+        height: "64px",
+        position: "relative",
+        borderRadius: "8px",
+        overflow: "hidden",
+        backgroundColor: hexColor,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+        border: "1px solid #E2D7C7"
+      }}
+      title={colorName}
+    >
+      {/* Rəng Layı Və Yumaq Şəklinin Blend Rejimi */}
+      <img
+        src="https://m.media-amazon.com/images/I/71R3yE5DDTL._AC_SL1500_.jpg"
+        alt="Alize Puffy"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          mixBlendMode: "multiply",
+          filter: "contrast(1.1) brightness(0.95)"
+        }}
+      />
+    </div>
+  );
+};
+
 export default function Inventory() {
   const [yarns, setYarns] = useState([
     { id: 1, type: "Alize Puffy", code: "183", name: "Açıq Qəhvəyi / Krem", price: "4.50 AZN", stock: 12 },
@@ -145,7 +221,7 @@ export default function Inventory() {
         <div>
           <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#3A2111", margin: 0 }}>İplər Stoku</h1>
           <p style={{ fontSize: "14px", color: "#7A6B5D", marginTop: "4px" }}>
-            Alize Puffy və digər iplərin rəng kodu və stok idarəetməsi
+            Alize Puffy iplərinin rəng kodu və stok idarəetməsi
           </p>
         </div>
         <button
@@ -210,6 +286,7 @@ export default function Inventory() {
         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #EFE8DC", backgroundColor: "#FAF7F2", color: "#70665C", fontSize: "14px", fontWeight: "600" }}>
+              <th style={{ padding: "18px 20px", width: "80px" }}>Şəkil</th>
               <th style={{ padding: "18px 20px" }}>Növü</th>
               <th style={{ padding: "18px 20px" }}>Rəng Kodu</th>
               <th style={{ padding: "18px 20px" }}>Rəng Adı</th>
@@ -222,15 +299,17 @@ export default function Inventory() {
             {filteredYarns.length > 0 ? (
               filteredYarns.map((yarn) => (
                 <tr key={yarn.id} style={{ borderBottom: "1px solid #F7F3EC" }}>
-                  {/* NÖVÜ: NORMAL FONT VƏ AÇIQ BOZ/QƏHVƏYİ */}
-                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#7A4A21", display: "inline-block" }}></span>
-                      {yarn.type}
-                    </div>
+                  {/* HAQIQI ALIZE PUFFY SEKLININ RENGININ DYNAMIK DEYISDIRILMESI */}
+                  <td style={{ padding: "12px 20px" }}>
+                    <RealYarnBall colorName={yarn.name} />
                   </td>
 
-                  {/* RƏNG KODU: NORMAL FONT VƏ AÇIQ BOZ/QƏHVƏYİ */}
+                  {/* NÖVÜ */}
+                  <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
+                    {yarn.type}
+                  </td>
+
+                  {/* RƏNG KODU */}
                   <td style={{ padding: "18px 20px", fontSize: "15px", fontWeight: "normal", color: "#70665C" }}>
                     KOD: {yarn.code}
                   </td>
@@ -308,7 +387,7 @@ export default function Inventory() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" style={{ padding: "32px", textAlign: "center", color: "#8A7A6C" }}>
+                <td colSpan="7" style={{ padding: "32px", textAlign: "center", color: "#8A7A6C" }}>
                   Axtarışa uyğun nəticə tapılmadı.
                 </td>
               </tr>
@@ -317,7 +396,7 @@ export default function Inventory() {
         </table>
       </div>
 
-      {/* YENİ İP ƏLAVƏ ET / REDAKTƏ ET MODALI */}
+      {/* MODAL */}
       {isModalOpen && (
         <div
           style={{
@@ -433,19 +512,22 @@ export default function Inventory() {
                 <label style={{ fontSize: "13px", color: "#6B5A4C", fontWeight: "600", display: "block", marginBottom: "6px" }}>
                   Rəng Adı
                 </label>
-                <input
-                  type="text"
-                  placeholder="Məs: Açıq Qəhvəyi / Krem"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "1px solid #E2D7C7",
-                    boxSizing: "border-box",
-                  }}
-                />
+                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    placeholder="Məs: Açıq Qəhvəyi / Krem"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #E2D7C7",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  <RealYarnBall colorName={formData.name} />
+                </div>
               </div>
 
               <div>

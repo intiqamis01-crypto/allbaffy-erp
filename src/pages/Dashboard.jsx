@@ -22,7 +22,7 @@ const Dashboard = () => {
       
       {/* Səhifə Başlığı */}
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#2C1D11' }}>Dashboard</h1>
+        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#2C1D11' }}>Əsas Səhifə</h1>
         <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#7A624E' }}>
           Ümumi biznes xülasəsi, analitika və xəbərdarlıqlar
         </p>

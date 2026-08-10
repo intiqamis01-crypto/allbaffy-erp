@@ -11,7 +11,7 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Hamısı");
 
-  // Modal və Form state-ləri
+  // Modal State-ləri
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingYarn, setEditingYarn] = useState(null);
   const [formData, setFormData] = useState({
@@ -22,19 +22,24 @@ export default function Inventory() {
     stock: "",
   });
 
-  // Axtarış və Filtr
+  // HƏR ŞEYƏ GÖRƏ AXTARIŞ (Növü, Kodu, Adı, Qiyməti)
   const filteredYarns = yarns.filter((yarn) => {
     const query = searchTerm.toLowerCase().trim();
+
     const matchesSearch =
       yarn.code.toLowerCase().includes(query) ||
-      yarn.name.toLowerCase().includes(query);
+      yarn.name.toLowerCase().includes(query) ||
+      yarn.type.toLowerCase().includes(query) ||
+      yarn.price.toLowerCase().includes(query) ||
+      `kod: ${yarn.code}`.toLowerCase().includes(query);
+
     const matchesCategory =
       selectedCategory === "Hamısı" || yarn.type === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
 
-  // Modal Aç/Bağla
+  // Modal Açılışları
   const openAddModal = () => {
     setEditingYarn(null);
     setFormData({ type: "Alize Puffy", code: "", name: "", price: "4.50 AZN", stock: "" });
@@ -58,23 +63,21 @@ export default function Inventory() {
     setEditingYarn(null);
   };
 
-  // Yadda saxla (Əlavə et / Yenilə)
+  // Form Yadda Saxlama
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.code || !formData.name || !formData.stock) {
-      alert("Xahiş olunur bütün xanaları doldurun!");
+    if (!formData.code.trim() || !formData.name.trim() || !formData.stock) {
+      alert("Xahiş olunur Rəng Kodu, Rəng Adı və Stok xanalarını doldurun!");
       return;
     }
 
     if (editingYarn) {
-      // Yeniləmə
       setYarns(
         yarns.map((item) =>
           item.id === editingYarn.id ? { ...item, ...formData, stock: Number(formData.stock) } : item
         )
       );
     } else {
-      // Yeni əlavə etmə
       const newYarn = {
         id: Date.now(),
         ...formData,
@@ -123,14 +126,14 @@ export default function Inventory() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", gap: "16px", flexWrap: "wrap" }}>
         <input
           type="text"
-          placeholder="Rəng kodu və ya adı ilə axtar..."
+          placeholder="Rəng kodu, adı və ya növü ilə axtar..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             padding: "10px 16px",
             border: "1px solid #E2D7C7",
             borderRadius: "10px",
-            width: "320px",
+            width: "340px",
             outline: "none",
             fontSize: "14px",
             backgroundColor: "#FFF",
@@ -247,7 +250,7 @@ export default function Inventory() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
+            backgroundColor: "rgba(0,0,0,0.5)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -259,21 +262,21 @@ export default function Inventory() {
               backgroundColor: "#FFF",
               padding: "24px",
               borderRadius: "16px",
-              width: "400px",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+              width: "420px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
             }}
           >
-            <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#4A2E1B", marginBottom: "16px" }}>
+            <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#4A2E1B", marginBottom: "20px" }}>
               {editingYarn ? "İpi Redaktə Et" : "Yeni İp Əlavə Et"}
             </h2>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>İp Növü</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>İp Növü</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
                 >
                   <option value="Alize Puffy">Alize Puffy</option>
                   <option value="Alize Puffy Fine">Alize Puffy Fine</option>
@@ -281,59 +284,59 @@ export default function Inventory() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Rəng Kodu</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Rəng Kodu</label>
                 <input
                   type="text"
                   placeholder="Məs: 183"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Rəng Adı</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Rəng Adı</label>
                 <input
                   type="text"
                   placeholder="Məs: Açıq Qəhvəyi / Krem"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Qiymət</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Qiymət</label>
                 <input
                   type="text"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Stok (Ədəd)</label>
+                <label style={{ fontSize: "13px", color: "#7A6B5D", fontWeight: "600", display: "block", marginBottom: "4px" }}>Stok (Ədəd)</label>
                 <input
                   type="number"
                   placeholder="Məs: 10"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", boxSizing: "border-box" }}
                 />
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
                 <button
                   type="button"
                   onClick={closeModal}
-                  style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #E2D7C7", backgroundColor: "#FFF", cursor: "pointer" }}
+                  style={{ padding: "9px 18px", borderRadius: "8px", border: "1px solid #E2D7C7", backgroundColor: "#FFF", cursor: "pointer" }}
                 >
                   Ləğv et
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: "8px 16px", borderRadius: "8px", border: "none", backgroundColor: "#7A4A21", color: "#FFF", fontWeight: "600", cursor: "pointer" }}
+                  style={{ padding: "9px 18px", borderRadius: "8px", border: "none", backgroundColor: "#7A4A21", color: "#FFF", fontWeight: "600", cursor: "pointer" }}
                 >
                   Yadda saxla
                 </button>

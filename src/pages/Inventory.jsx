@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 export default function Inventory() {
-  // 1. İplərin ilkin siyahısı
   const [yarns, setYarns] = useState([
     { id: 1, type: "Alize Puffy", code: "183", name: "Açıq Qəhvəyi / Krem", price: "4.50 AZN", stock: 12 },
     { id: 2, type: "Alize Puffy", code: "55", name: "Ağ", price: "4.50 AZN", stock: 8 },
@@ -12,23 +11,17 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Hamısı");
 
-  // 2. AXTARIŞ VƏ KATEQORİYA FİLTİRİ (Düzəldildi)
   const filteredYarns = yarns.filter((yarn) => {
     const query = searchTerm.toLowerCase().trim();
-
-    // Həm rəng koduna, həm də rəng adına görə axtarır
     const matchesSearch =
       yarn.code.toLowerCase().includes(query) ||
       yarn.name.toLowerCase().includes(query);
-
-    // Kateqoriyaya görə süzgəc (Hamısı / Alize Puffy / Alize Puffy Fine)
     const matchesCategory =
       selectedCategory === "Hamısı" || yarn.type === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
 
-  // 3. ƏMƏLİYYAT FUNKSİYALARI (Düzəldildi)
   const handleEdit = (yarn) => {
     alert(`Redaktə olunur: KOD ${yarn.code} - ${yarn.name}`);
   };
@@ -40,43 +33,63 @@ export default function Inventory() {
   };
 
   return (
-    <div className="p-6 bg-[#fdfbf7] min-h-screen">
+    <div style={{ padding: "24px", backgroundColor: "#FAF7F2", minHeight: "100vh", fontFamily: "sans-serif" }}>
       {/* BAŞLIQ */}
-      <div className="flex justify-between items-center mb-6">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <h1 className="text-2xl font-bold text-[#4a2e1b]">İplər Stoku</h1>
-          <p className="text-sm text-gray-500">
+          <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#4A2E1B", margin: 0 }}>İplər Stoku</h1>
+          <p style={{ fontSize: "14px", color: "#7A6B5D", marginTop: "4px" }}>
             Alize Puffy və digər iplərin rəng kodu və stok idarəetməsi
           </p>
         </div>
-        <button className="bg-[#8c5a2b] hover:bg-[#734821] text-white px-4 py-2 rounded-lg font-medium shadow-sm">
+        <button
+          style={{
+            backgroundColor: "#7A4A21",
+            color: "#FFF",
+            border: "none",
+            padding: "10px 18px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            cursor: "pointer",
+          }}
+        >
           + Yeni İp Əlavə Et
         </button>
       </div>
 
-      {/* AXTARIŞ VƏ KATEQORİYA TƏB-LƏRİ */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-        <div className="relative w-full sm:w-1/2">
-          <input
-            type="text"
-            placeholder="Rəng kodu və ya adı ilə axtar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8c5a2b]"
-          />
-          <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-        </div>
+      {/* AXTARIŞ VƏ TƏB-LƏR */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", gap: "16px", flexWrap: "wrap" }}>
+        <input
+          type="text"
+          placeholder="Rəng kodu və ya adı ilə axtar..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: "10px 16px",
+            border: "1px solid #E2D7C7",
+            borderRadius: "10px",
+            width: "320px",
+            outline: "none",
+            fontSize: "14px",
+            backgroundColor: "#FFF",
+          }}
+        />
 
-        <div className="flex bg-[#f3ebd9] p-1 rounded-xl gap-1 w-full sm:w-auto">
+        <div style={{ backgroundColor: "#EFE6D8", padding: "4px", borderRadius: "10px", display: "flex", gap: "4px" }}>
           {["Hamısı", "Alize Puffy", "Alize Puffy Fine"].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                selectedCategory === cat
-                  ? "bg-[#8c5a2b] text-white"
-                  : "text-[#5c4028] hover:bg-[#e2d5bd]"
-              }`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "none",
+                fontSize: "14px",
+                fontWeight: "500",
+                cursor: "pointer",
+                backgroundColor: selectedCategory === cat ? "#7A4A21" : "transparent",
+                color: selectedCategory === cat ? "#FFF" : "#5A4332",
+              }}
             >
               {cat}
             </button>
@@ -85,64 +98,76 @@ export default function Inventory() {
       </div>
 
       {/* CƏDVƏL */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div style={{ backgroundColor: "#FFF", borderRadius: "14px", border: "1px solid #EFE8DC", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
-            <tr className="border-b border-gray-100 text-sm font-semibold text-gray-500 bg-gray-50/50">
-              <th className="p-4">Növü</th>
-              <th className="p-4">Rəng Kodu</th>
-              <th className="p-4">Rəng Adı</th>
-              <th className="p-4">Qiymət</th>
-              <th className="p-4">Stok (Ədəd)</th>
-              <th className="p-4 text-center">Əməliyyatlar</th>
+            <tr style={{ borderBottom: "1px solid #EFE8DC", backgroundColor: "#FAF7F2", color: "#8A7663", fontSize: "14px" }}>
+              <th style={{ padding: "16px" }}>Növü</th>
+              <th style={{ padding: "16px" }}>Rəng Kodu</th>
+              <th style={{ padding: "16px" }}>Rəng Adı</th>
+              <th style={{ padding: "16px" }}>Qiymət</th>
+              <th style={{ padding: "16px" }}>Stok (Ədəd)</th>
+              <th style={{ padding: "16px", textAlign: "center" }}>Əməliyyatlar</th>
             </tr>
           </thead>
           <tbody>
             {filteredYarns.length > 0 ? (
               filteredYarns.map((yarn) => (
-                <tr key={yarn.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="p-4 flex items-center gap-2 font-medium">
-                    <span className="w-4 h-4 rounded-full border-2 border-[#8c5a2b] flex items-center justify-center">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#8c5a2b]"></span>
-                    </span>
+                <tr key={yarn.id} style={{ borderBottom: "1px solid #F7F3EC", fontSize: "15px" }}>
+                  <td style={{ padding: "16px", fontWeight: "600", color: "#3A2B1E", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#7A4A21", display: "inline-block" }}></span>
                     {yarn.type}
                   </td>
-                  <td className="p-4 font-semibold text-gray-700">KOD: {yarn.code}</td>
-                  <td className="p-4 text-gray-600">{yarn.name}</td>
-                  <td className="p-4 font-bold">{yarn.price}</td>
-                  <td className="p-4">
+                  <td style={{ padding: "16px", fontWeight: "600", color: "#5A4332" }}>KOD: {yarn.code}</td>
+                  <td style={{ padding: "16px", color: "#6A5849" }}>{yarn.name}</td>
+                  <td style={{ padding: "16px", fontWeight: "bold", color: "#3A2B1E" }}>{yarn.price}</td>
+                  <td style={{ padding: "16px" }}>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        yarn.stock < 3
-                          ? "bg-red-100 text-red-600"
-                          : "bg-green-100 text-green-700"
-                      }`}
+                      style={{
+                        padding: "4px 12px",
+                        borderRadius: "20px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        backgroundColor: yarn.stock < 3 ? "#FEE2E2" : "#D1FAE5",
+                        color: yarn.stock < 3 ? "#DC2626" : "#059669",
+                      }}
                     >
                       {yarn.stock} ədəd
                     </span>
                   </td>
-                  {/* ƏMƏLİYYAT DÜYMƏLƏRİ */}
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(yarn)}
-                        className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-100 text-gray-600 transition"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(yarn.id)}
-                        className="p-1.5 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+                  <td style={{ padding: "16px", textAlign: "center" }}>
+                    <button
+                      onClick={() => handleEdit(yarn)}
+                      style={{
+                        padding: "6px 10px",
+                        border: "1px solid #E2D7C7",
+                        borderRadius: "8px",
+                        backgroundColor: "#FFF",
+                        cursor: "pointer",
+                        marginRight: "6px",
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(yarn.id)}
+                      style={{
+                        padding: "6px 10px",
+                        border: "1px solid #FCA5A5",
+                        borderRadius: "8px",
+                        backgroundColor: "#FEF2F2",
+                        color: "#DC2626",
+                        cursor: "pointer",
+                      }}
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="p-8 text-center text-gray-400">
+                <td colSpan="6" style={{ padding: "32px", textAlign: "center", color: "#9A8878" }}>
                   Axtarışa uyğun nəticə tapılmadı.
                 </td>
               </tr>

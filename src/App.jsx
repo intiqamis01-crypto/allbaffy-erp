@@ -14,7 +14,9 @@ function App() {
     <Router>
       <Layout>
         <Routes>
+          {/* Əsas səhifə kimi Dashboard göstərilməlidir */}
           <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/products" element={<Products />} />
           <Route path="/expenses" element={<Expenses />} />

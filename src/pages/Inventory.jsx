@@ -11,6 +11,18 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Hamısı");
 
+  // Modal və Form state-ləri
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingYarn, setEditingYarn] = useState(null);
+  const [formData, setFormData] = useState({
+    type: "Alize Puffy",
+    code: "",
+    name: "",
+    price: "4.50 AZN",
+    stock: "",
+  });
+
+  // Axtarış və Filtr
   const filteredYarns = yarns.filter((yarn) => {
     const query = searchTerm.toLowerCase().trim();
     const matchesSearch =
@@ -22,10 +34,59 @@ export default function Inventory() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleEdit = (yarn) => {
-    alert(`Redaktə olunur: KOD ${yarn.code} - ${yarn.name}`);
+  // Modal Aç/Bağla
+  const openAddModal = () => {
+    setEditingYarn(null);
+    setFormData({ type: "Alize Puffy", code: "", name: "", price: "4.50 AZN", stock: "" });
+    setIsModalOpen(true);
   };
 
+  const openEditModal = (yarn) => {
+    setEditingYarn(yarn);
+    setFormData({
+      type: yarn.type,
+      code: yarn.code,
+      name: yarn.name,
+      price: yarn.price,
+      stock: yarn.stock,
+    });
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingYarn(null);
+  };
+
+  // Yadda saxla (Əlavə et / Yenilə)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.code || !formData.name || !formData.stock) {
+      alert("Xahiş olunur bütün xanaları doldurun!");
+      return;
+    }
+
+    if (editingYarn) {
+      // Yeniləmə
+      setYarns(
+        yarns.map((item) =>
+          item.id === editingYarn.id ? { ...item, ...formData, stock: Number(formData.stock) } : item
+        )
+      );
+    } else {
+      // Yeni əlavə etmə
+      const newYarn = {
+        id: Date.now(),
+        ...formData,
+        stock: Number(formData.stock),
+      };
+      setYarns([newYarn, ...yarns]);
+    }
+
+    closeModal();
+  };
+
+  // Silmə
   const handleDelete = (id) => {
     if (window.confirm("Bu ipi silmək istədiyinizdən əminsiniz?")) {
       setYarns(yarns.filter((item) => item.id !== id));
@@ -43,6 +104,7 @@ export default function Inventory() {
           </p>
         </div>
         <button
+          onClick={openAddModal}
           style={{
             backgroundColor: "#7A4A21",
             color: "#FFF",
@@ -137,7 +199,7 @@ export default function Inventory() {
                   </td>
                   <td style={{ padding: "16px", textAlign: "center" }}>
                     <button
-                      onClick={() => handleEdit(yarn)}
+                      onClick={() => openEditModal(yarn)}
                       style={{
                         padding: "6px 10px",
                         border: "1px solid #E2D7C7",
@@ -175,6 +237,111 @@ export default function Inventory() {
           </tbody>
         </table>
       </div>
+
+      {/* YENİ İP ƏLAVƏ ET / REDAKTƏ ET MODALI */}
+      {isModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#FFF",
+              padding: "24px",
+              borderRadius: "16px",
+              width: "400px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+          >
+            <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#4A2E1B", marginBottom: "16px" }}>
+              {editingYarn ? "İpi Redaktə Et" : "Yeni İp Əlavə Et"}
+            </h2>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div>
+                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>İp Növü</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px" }}
+                >
+                  <option value="Alize Puffy">Alize Puffy</option>
+                  <option value="Alize Puffy Fine">Alize Puffy Fine</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Rəng Kodu</label>
+                <input
+                  type="text"
+                  placeholder="Məs: 183"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Rəng Adı</label>
+                <input
+                  type="text"
+                  placeholder="Məs: Açıq Qəhvəyi / Krem"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Qiymət</label>
+                <input
+                  type="text"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", color: "#7A6B5D", fontWeight: "600" }}>Stok (Ədəd)</label>
+                <input
+                  type="number"
+                  placeholder="Məs: 10"
+                  value={formData.stock}
+                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #E2D7C7", marginTop: "4px", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "16px" }}>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #E2D7C7", backgroundColor: "#FFF", cursor: "pointer" }}
+                >
+                  Ləğv et
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: "8px 16px", borderRadius: "8px", border: "none", backgroundColor: "#7A4A21", color: "#FFF", fontWeight: "600", cursor: "pointer" }}
+                >
+                  Yadda saxla
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

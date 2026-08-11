@@ -14,21 +14,24 @@ const Orders = () => {
     return [
       {
         id: 'ALP-001',
-        orderDate: '2026-08-01',
-        deliveryDate: '2026-08-08',
         customerName: 'Aysel',
         phone: '0501234567',
         source: 'WhatsApp',
+        orderDate: '2026-08-01',
+        deliveryDate: '2026-08-08',
         product: 'Uşaq Yorğanı',
-        category: 'Körpə Tekstili',
+        color: '183 - Çəhrayı',
+        knitType: 'Klassik Hörgü / 90x90 sm',
+        costPrice: '12.00 AZN',
+        salePrice: '30.00 AZN',
+        profit: '+18.00 AZN',
+        status: 'Hazırlanır',
         advance: '10',
         advanceMethod: 'Kart',
         remaining: '20',
         remainingMethod: 'Nağd',
         deliveryAddress: 'Koroğlu m/s',
-        deliveryPrice: '5',
-        profit: '+18.00 AZN',
-        status: 'Hazırlanır'
+        deliveryPrice: '5'
       }
     ];
   });
@@ -44,21 +47,24 @@ const Orders = () => {
 
   const [newOrder, setNewOrder] = useState({
     id: `ALP-00${orders.length + 1}`,
-    orderDate: '',
-    deliveryDate: '',
     customerName: '',
     phone: '',
     source: 'Instagram',
+    orderDate: '',
+    deliveryDate: '',
     product: '',
-    category: '',
+    color: '',
+    knitType: '',
+    costPrice: '',
+    salePrice: '',
+    profit: '0 AZN',
+    status: 'Hazırlanır',
     advance: '0',
     advanceMethod: 'Nağd',
     remaining: '0',
     remainingMethod: 'Nağd',
     deliveryAddress: '',
-    deliveryPrice: '0',
-    profit: '0 AZN',
-    status: 'Hazırlanır'
+    deliveryPrice: '0'
   });
 
   const filteredOrders = orders.filter(order =>
@@ -77,21 +83,24 @@ const Orders = () => {
     setIsAddModalOpen(false);
     setNewOrder({
       id: `ALP-00${orders.length + 2}`,
-      orderDate: '',
-      deliveryDate: '',
       customerName: '',
       phone: '',
       source: 'Instagram',
+      orderDate: '',
+      deliveryDate: '',
       product: '',
-      category: '',
+      color: '',
+      knitType: '',
+      costPrice: '',
+      salePrice: '',
+      profit: '0 AZN',
+      status: 'Hazırlanır',
       advance: '0',
       advanceMethod: 'Nağd',
       remaining: '0',
       remainingMethod: 'Nağd',
       deliveryAddress: '',
-      deliveryPrice: '0',
-      profit: '0 AZN',
-      status: 'Hazırlanır'
+      deliveryPrice: '0'
     });
   };
 
@@ -141,44 +150,56 @@ const Orders = () => {
       <div style={{ marginBottom: '20px' }}>
         <input
           type="text"
-          placeholder="Axtarış (Müştəri, Mənbə, Telefon, Kod, Məhsul, Kateqoriya və s.)..."
+          placeholder="Axtarış (Müştəri, Mənbə, Telefon, Kod, Məhsul və s.)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: '400px', padding: '10px 15px', border: '1px solid #D7CCC8', borderRadius: '8px', outline: 'none', fontSize: '14px' }}
         />
       </div>
 
-      {/* 1-ci şəkildəki cədvəl strukturu: Kod, Müştəri Adı/Nömrə, Məhsul Adı, Kateqoriya, Qazanc, Status, Əməliyyat */}
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid #EFEBE9' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflowX: 'auto', border: '1px solid #EFEBE9' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px', minWidth: '1200px' }}>
           <thead>
             <tr style={{ backgroundColor: '#EFEBE9', color: '#5C4033', fontSize: '11px', textTransform: 'uppercase' }}>
-              <th style={{ padding: '12px' }}>Müştəri / Tel</th>
-              <th style={{ padding: '12px' }}>Kod</th>
-              <th style={{ padding: '12px' }}>Məhsul Adı</th>
-              <th style={{ padding: '12px' }}>Kateqoriya</th>
-              <th style={{ padding: '12px' }}>Qazanc</th>
-              <th style={{ padding: '12px' }}>Status</th>
-              <th style={{ padding: '12px', textAlign: 'center' }}>Əməliyyat</th>
+              <th style={{ padding: '10px' }}>Kod</th>
+              <th style={{ padding: '10px' }}>Müştəri / Tel</th>
+              <th style={{ padding: '10px' }}>Mənbə</th>
+              <th style={{ padding: '10px' }}>Tarix (Sifariş/Təhvil)</th>
+              <th style={{ padding: '10px' }}>Məhsul adı</th>
+              <th style={{ padding: '10px' }}>Rəng</th>
+              <th style={{ padding: '10px' }}>Hörgü növü və ölçü</th>
+              <th style={{ padding: '10px' }}>Maya dəyəri</th>
+              <th style={{ padding: '10px' }}>Satış Qiyməti</th>
+              <th style={{ padding: '10px' }}>Qazanc</th>
+              <th style={{ padding: '10px' }}>Status</th>
+              <th style={{ padding: '10px', textAlign: 'center' }}>Əməliyyat</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order) => (
                 <tr key={order.id} style={{ borderBottom: '1px solid #EFEBE9' }}>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '10px', fontWeight: 'bold', color: '#5C4033' }}>{order.id}</td>
+                  <td style={{ padding: '10px' }}>
                     <div style={{ fontWeight: 'bold', color: '#3D2C22' }}>{order.customerName}</div>
                     <div style={{ fontSize: '11px', color: '#777', marginTop: '2px' }}>{order.phone}</div>
                   </td>
-                  <td style={{ padding: '12px', fontWeight: 'bold', color: '#5C4033' }}>{order.id}</td>
-                  <td style={{ padding: '12px' }}>{order.product}</td>
-                  <td style={{ padding: '12px' }}>{order.category}</td>
-                  <td style={{ padding: '12px', color: '#2e7d32', fontWeight: 'bold' }}>{order.profit}</td>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '10px' }}>{order.source}</td>
+                  <td style={{ padding: '10px', fontSize: '11px' }}>
+                    <div>Sif: {order.orderDate}</div>
+                    <div style={{ marginTop: '2px' }}>Təh: {order.deliveryDate}</div>
+                  </td>
+                  <td style={{ padding: '10px' }}>{order.product}</td>
+                  <td style={{ padding: '10px' }}>{order.color}</td>
+                  <td style={{ padding: '10px' }}>{order.knitType}</td>
+                  <td style={{ padding: '10px' }}>{order.costPrice}</td>
+                  <td style={{ padding: '10px' }}>{order.salePrice}</td>
+                  <td style={{ padding: '10px', color: '#2e7d32', fontWeight: 'bold' }}>{order.profit}</td>
+                  <td style={{ padding: '10px' }}>
                     <select
                       value={order.status}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '12px', background: '#fff', cursor: 'pointer', fontWeight: 'bold', color: getStatusColor(order.status) }}
+                      style={{ padding: '4px 6px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '11px', background: '#fff', cursor: 'pointer', fontWeight: 'bold', color: getStatusColor(order.status) }}
                     >
                       <option value="Hazırlanır">Hazırlanır</option>
                       <option value="Hazırdır">Hazırdır</option>
@@ -186,18 +207,18 @@ const Orders = () => {
                       <option value="Ləğv edildi">Ləğv edildi</option>
                     </select>
                   </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
                     <button
                       onClick={() => handleEditClick(order)}
                       title="Düzəliş et"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', marginRight: '10px' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', marginRight: '6px' }}
                     >
                       ✏️
                     </button>
                     <button
                       onClick={() => handleDelete(order.id)}
                       title="Sil"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                     >
                       🗑️
                     </button>
@@ -206,14 +227,14 @@ const Orders = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Heç bir sifariş tapılmadı.</td>
+                <td colSpan="12" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Heç bir sifariş tapılmadı.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* 2-ci şəkildəki açılan pəncərə (Yeni Sifariş) */}
+      {/* Yeni Sifariş Modalı */}
       {isAddModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '14px', width: '500px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
@@ -225,7 +246,7 @@ const Orders = () => {
                   <input type="date" required value={newOrder.orderDate} onChange={(e) => setNewOrder({...newOrder, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Təhvil Tarixi (Müddət)</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Təhvil Tarixi</label>
                   <input type="date" required value={newOrder.deliveryDate} onChange={(e) => setNewOrder({...newOrder, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
               </div>
@@ -254,12 +275,28 @@ const Orders = () => {
 
               <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Məhsul Adı</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Məhsul adı</label>
                   <input type="text" required value={newOrder.product} onChange={(e) => setNewOrder({...newOrder, product: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Kateqoriya</label>
-                  <input type="text" required value={newOrder.category} onChange={(e) => setNewOrder({...newOrder, category: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Rəng</label>
+                  <input type="text" value={newOrder.color} onChange={(e) => setNewOrder({...newOrder, color: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Hörgü növü və ölçü</label>
+                <input type="text" value={newOrder.knitType} onChange={(e) => setNewOrder({...newOrder, knitType: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Maya dəyəri</label>
+                  <input type="text" value={newOrder.costPrice} onChange={(e) => setNewOrder({...newOrder, costPrice: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Satış Qiyməti</label>
+                  <input type="text" value={newOrder.salePrice} onChange={(e) => setNewOrder({...newOrder, salePrice: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
@@ -321,7 +358,7 @@ const Orders = () => {
         </div>
       )}
 
-      {/* 2-ci şəkildəki açılan pəncərə (Sifarişi Redaktə Et) */}
+      {/* Düzəliş Modalı */}
       {isEditModalOpen && currentOrder && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '14px', width: '500px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
@@ -333,7 +370,7 @@ const Orders = () => {
                   <input type="date" required value={currentOrder.orderDate} onChange={(e) => setCurrentOrder({...currentOrder, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Təhvil Tarixi (Müddət)</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Təhvil Tarixi</label>
                   <input type="date" required value={currentOrder.deliveryDate} onChange={(e) => setCurrentOrder({...currentOrder, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
               </div>
@@ -362,12 +399,28 @@ const Orders = () => {
 
               <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Məhsul Adı</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Məhsul adı</label>
                   <input type="text" required value={currentOrder.product} onChange={(e) => setCurrentOrder({...currentOrder, product: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Kateqoriya</label>
-                  <input type="text" required value={currentOrder.category} onChange={(e) => setCurrentOrder({...currentOrder, category: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Rəng</label>
+                  <input type="text" value={currentOrder.color} onChange={(e) => setCurrentOrder({...currentOrder, color: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Hörgü növü və ölçü</label>
+                <input type="text" value={currentOrder.knitType} onChange={(e) => setCurrentOrder({...currentOrder, knitType: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Maya dəyəri</label>
+                  <input type="text" value={currentOrder.costPrice} onChange={(e) => setCurrentOrder({...currentOrder, costPrice: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>Satış Qiyməti</label>
+                  <input type="text" value={currentOrder.salePrice} onChange={(e) => setCurrentOrder({...currentOrder, salePrice: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 

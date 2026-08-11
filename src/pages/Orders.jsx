@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const Orders = () => {
-  // Məlumatları əvvəlcə localStorage-dən oxuyuruq, yoxdursa boş siyahı və ya ilkin nümunə götürürük
   const [orders, setOrders] = useState(() => {
     const savedOrders = localStorage.getItem('allbaffy_orders');
     if (savedOrders) {
@@ -24,7 +23,6 @@ const Orders = () => {
     ];
   });
 
-  // Hər dəfə orders dəyişəndə localStorage-ə yadda saxlayırıq
   useEffect(() => {
     localStorage.setItem('allbaffy_orders', JSON.stringify(orders));
   }, [orders]);
@@ -45,7 +43,7 @@ const Orders = () => {
     costPrice: '',
     expense: '',
     profit: '',
-    status: 'Gözləmədə'
+    status: 'Hazırlanır'
   });
 
   const filteredOrders = orders.filter(order =>
@@ -73,7 +71,7 @@ const Orders = () => {
       costPrice: '',
       expense: '',
       profit: '',
-      status: 'Gözləmədə'
+      status: 'Hazırlanır'
     });
   };
 
@@ -92,6 +90,16 @@ const Orders = () => {
   const handleDelete = (id) => {
     if (window.confirm('Bu sifarişi silmək istədiyinizə əminsinizmi?')) {
       setOrders(orders.filter(o => o.id !== id));
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Hazırlanır': return '#f57f17';
+      case 'Hazırdır': return '#0288d1';
+      case 'Təhvil verildi': return '#2e7d32';
+      case 'Ləğv edildi': return '#d32f2f';
+      default: return '#555';
     }
   };
 
@@ -157,11 +165,12 @@ const Orders = () => {
                     <select
                       value={order.status}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '12px', background: '#fff', cursor: 'pointer', fontWeight: 'bold', color: order.status === 'Tamamlandı' ? '#2e7d32' : '#f57f17' }}
+                      style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '12px', background: '#fff', cursor: 'pointer', fontWeight: 'bold', color: getStatusColor(order.status) }}
                     >
-                      <option value="Gözləmədə">Gözləmədə</option>
                       <option value="Hazırlanır">Hazırlanır</option>
-                      <option value="Tamamlandı">Tamamlandı</option>
+                      <option value="Hazırdır">Hazırdır</option>
+                      <option value="Təhvil verildi">Təhvil verildi</option>
+                      <option value="Ləğv edildi">Ləğv edildi</option>
                     </select>
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
@@ -241,9 +250,10 @@ const Orders = () => {
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>STATUS</label>
                 <select value={newOrder.status} onChange={(e) => setNewOrder({...newOrder, status: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', background: 'white' }}>
-                  <option value="Gözləmədə">Gözləmədə</option>
                   <option value="Hazırlanır">Hazırlanır</option>
-                  <option value="Tamamlandı">Tamamlandı</option>
+                  <option value="Hazırdır">Hazırdır</option>
+                  <option value="Təhvil verildi">Təhvil verildi</option>
+                  <option value="Ləğv edildi">Ləğv edildi</option>
                 </select>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
@@ -305,9 +315,10 @@ const Orders = () => {
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '3px', color: '#5C4033' }}>STATUS</label>
                 <select value={currentOrder.status} onChange={(e) => setCurrentOrder({...currentOrder, status: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '6px', background: 'white' }}>
-                  <option value="Gözləmədə">Gözləmədə</option>
                   <option value="Hazırlanır">Hazırlanır</option>
-                  <option value="Tamamlandı">Tamamlandı</option>
+                  <option value="Hazırdır">Hazırdır</option>
+                  <option value="Təhvil verildi">Təhvil verildi</option>
+                  <option value="Ləğv edildi">Ləğv edildi</option>
                 </select>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>

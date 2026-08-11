@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { db } from '../../firebase'; // Əgər firebase faylınız bir qovluq yuxarıdadırsa yoxlayın
+import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function Products() {
@@ -23,14 +23,14 @@ export default function Products() {
       // 1. Şəkli Cloudinary-yə yükləyirik
       const formData = new FormData();
       formData.append("file", imageFile);
-      formData.append("upload_preset", "allbaffy_preset"); // Yaratdığımız preset adı
+      formData.append("upload_preset", "allbaffy_preset");
 
       const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/alg7d6lb/image/upload", // Sizin Cloud name
+        "https://api.cloudinary.com/v1_1/alg7d6lb/image/upload",
         formData
       );
       
-      const imageUrl = response.data.secure_url; // Cloudinary-dən qayıdan şəkil linki
+      const imageUrl = response.data.secure_url;
 
       // 2. Məlumatları və şəklin linkini Firebase Firestore bazasına yazırıq
       await addDoc(collection(db, "products"), {

@@ -10,6 +10,9 @@ export default function Inventory() {
   const [selectedSeries, setSelectedSeries] = useState('All');
   const [uploading, setUploading] = useState(false);
 
+  // Şəkil böyütmək üçün state
+  const [activeImage, setActiveImage] = useState(null);
+
   // Yeni məhsul üçün form state-ləri
   const [showAddForm, setShowAddForm] = useState(false);
   const [newBrand, setNewBrand] = useState('Alize');
@@ -87,7 +90,6 @@ export default function Inventory() {
 
       alert("Yeni ip uğurla əlavə olundu!");
       setShowAddForm(false);
-      // Formanı təmizlə
       setNewCode('');
       setNewColorName('');
       setNewStock('');
@@ -146,7 +148,7 @@ export default function Inventory() {
             onClick={() => setShowAddForm(!showAddForm)}
             style={{ backgroundColor: '#5c4033', color: '#FFF', border: 'none', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
           >
-            {showFormStatus => showAddForm ? "Bağla" : "+ Yeni İp Əlavə Et"}
+            {showAddForm ? "Bağla" : "+ Yeni İp Əlavə Et"}
           </button>
 
           {!loading && (
@@ -247,7 +249,9 @@ export default function Inventory() {
                         <img 
                           src={yarn.imageUrl} 
                           alt="ip" 
-                          style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #D9C3B0' }}
+                          onClick={() => setActiveImage(yarn.imageUrl)}
+                          title="Böyütmək üçün toxun"
+                          style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #D9C3B0', cursor: 'pointer' }}
                         />
                       ) : (
                         <div style={{ width: '45px', height: '45px', backgroundColor: '#EFE7DE', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A08C7D', fontSize: '10px' }}>
@@ -283,6 +287,29 @@ export default function Inventory() {
           </table>
         </div>
       )}
+
+      {/* Şəkli Böyük Göstərən Modal (Pop-up) */}
+      {activeImage && (
+        <div 
+          onClick={() => setActiveImage(null)}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, cursor: 'pointer' }}
+        >
+          <div style={{ position: 'relative', padding: '10px', backgroundColor: '#FFF', borderRadius: '8px' }} onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={activeImage} 
+              alt="Böyük şəkil" 
+              style={{ maxWidth: '85vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: '6px', display: 'block' }}
+            />
+            <button 
+              onClick={() => setActiveImage(null)}
+              style={{ position: 'absolute', top: '-12px', right: '-12px', backgroundColor: '#5c4033', color: '#FFF', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

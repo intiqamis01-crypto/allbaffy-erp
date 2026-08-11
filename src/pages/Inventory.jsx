@@ -10,18 +10,25 @@ export default function Inventory() {
   const [selectedSeries, setSelectedSeries] = useState('All');
   const [uploading, setUploading] = useState(false);
 
-  // Firebase Firestore-dan ipləri çəkmək
+  // Firebase Firestore-dan ipləri çəkmək, əgər alınmasa birbaşa yarnsData-nı göstərmək
   const fetchYarns = async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'yarns'));
       const list = [];
-      querySnapshot.forEach((doc) => {
-        list.push({ id: doc.id, ...doc.data() });
+      querySnapshot.forEach((docItem) => {
+        list.push({ id: docItem.id, ...docItem.data() });
       });
-      setYarns(list);
+      
+      if (list.length > 0) {
+        setYarns(list);
+      } else {
+        // Bazalıq hələ boşdursa, birbaşa yerli məlumatı göstəririk
+        setYarns(yarnsData);
+      }
     } catch (error) {
-      console.error("Firebase xətası:", error);
+      console.error("Firebase xətası, yerli məlumatlar göstərilir:", error);
+      setYarns(yarnsData);
     } finally {
       setLoading(false);
     }
@@ -45,32 +52,14 @@ export default function Inventory() {
       await updateDoc(yarnRef, { stockCount: newStock });
       setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStock } : item));
     } catch (error) {
-      alert("Xəta baş verdi.");
-    }
-  };
-
-  // Static yarnsData siyahısını Firebase-ə yükləmək/yeniləmək
-  const handleSeedDatabase = async () => {
-    if (!window.confirm("İp bazasını yeni məlumatlar və şəkillərlə Firebase-ə yükləmək istəyirsiniz?")) return;
-    setUploading(true);
-    try {
-      for (const item of yarnsData) {
-        await setDoc(doc(db, 'yarns', item.id), {
-          brand: item.brand,
-          series: item.series,
-          code: item.code,
-          colorName: item.colorName,
-          stockCount: item.stockCount || 0,
-          imageUrl: item.imageUrl || ''
-        });
+      // Əgər bazada sənəd hələ yoxdursa, yaradıb yeniləyirik
+      try {
+        const yarnRef = doc(db, 'yarns', yarn.id);
+        await setDoc(yarnRef, { ...yarn, stockCount: newStock });
+        setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStock } : item));
+      } catch (err) {
+        alert("Xəta baş verdi.");
       }
-      alert("Bütün iplər uğurla yükləndi və yeniləndi!");
-      fetchYarns();
-    } catch (error) {
-      console.error(error);
-      alert("Xəta baş verdi.");
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -92,15 +81,6 @@ export default function Inventory() {
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: '#4A3B32', margin: 0, fontSize: '24px' }}>İp Anbarı</h1>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {!loading && (
-            <button
-              onClick={handleSeedDatabase}
-              disabled={uploading}
-              style={{ backgroundColor: '#785A46', color: '#FFF', border: 'none', padding: '10px 18px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-            >
-              {uploading ? "Yüklənir..." : "İp Bazasını Yenilə (Şəkillərlə)"}
-            </button>
-          )}
           <span style={{ backgroundColor: '#D9C3B0', padding: '6px 14px', borderRadius: '16px', color: '#3A2E2B', fontWeight: 'bold' }}>
             Cəmi Çeşid: {filteredYarns.length}
           </span>

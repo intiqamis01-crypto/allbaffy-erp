@@ -13,8 +13,8 @@ const Orders = () => {
     }
     return [
       {
-        id: 'ALP-001',
-        customerName: 'Aynur Məmmədova',
+        id: 'ORD-001',
+        customerName: 'Anar Məmmədov',
         phone: '+994 50 123 45 67',
         source: 'WhatsApp',
         orderDate: '2026-08-15',
@@ -22,16 +22,16 @@ const Orders = () => {
         daysCount: 15,
         product: 'Toxunma Odyal',
         yarnTypes: ['Alize Puffy'],
-        colors: ['Bej'],
+        colors: ['Bej / Krem (Kod: 310)'],
         knitType: 'Klassik Hörgü',
         size: '90x90 cm',
         costPrice: '25',
-        salePrice: '40',
-        profit: '+15 AZN',
+        salePrice: '150',
+        profit: '+125 AZN',
         status: 'Hazırlanır',
-        advance: '10',
+        advance: '50',
         advanceMethod: 'Kart',
-        remaining: '30',
+        remaining: '100',
         remainingMethod: 'Nağd',
         hasDelivery: true,
         deliveryAddress: 'Gənclik m/s',
@@ -47,7 +47,6 @@ const Orders = () => {
     localStorage.setItem('allbaffy_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // Real və səliqəli ikonlar ilə Mənbələr
   const [sources, setSources] = useState([
     { name: 'Instagram', icon: '📷' },
     { name: 'WhatsApp', icon: '💬' },
@@ -59,10 +58,9 @@ const Orders = () => {
 
   const [products, setProducts] = useState(['Uşaq Yorğanı', 'Şərf', 'Gift Box', 'Pampers Tortu', 'Jaket / Jilet', 'Oyun Matı', 'Toxunma Odyal']);
   const [yarnTypesList, setYarnTypesList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Fine Color', 'Digər ip']);
-  const [knitTypesList, setKnotTypesList] = useState(['Klassik Hörgü', 'Şahmat uazoru', 'Ziqzaq', 'Sadə']);
+  const [knitTypesList, setKnotTypesList] = useState(['Klassik Hörgü', 'Şahmat uzoru', 'Ziqzaq', 'Sadə']);
   const [sizesList, setSizesList] = useState(['90x90 cm', '100x100 cm', '120x150 cm', 'Standart']);
 
-  // Stok ip bazasını localStorage-dan oxumaq (İp stoku səhifəsi ilə əlaqə)
   const [stockYarns, setStockYarns] = useState(() => {
     const savedStock = localStorage.getItem('allbaffy_yarns');
     if (savedStock) {
@@ -73,7 +71,6 @@ const Orders = () => {
         console.error(e);
       }
     }
-    // Əgər stokda ip yoxdursa nümunə rənglər
     return [
       { id: 1, name: 'Ağ', code: '001', brand: 'Alize Puffy' },
       { id: 2, name: 'Bej / Krem', code: '310', brand: 'Alize Puffy' },
@@ -88,8 +85,7 @@ const Orders = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
 
-  // İdarəetmə Modalları üçün state-lər
-  const [manageModalType, setManageModalType] = useState(null); // 'sources', 'products', 'knitTypes', 'sizes'
+  const [manageModalType, setManageModalType] = useState(null);
   const [newItemName, setNewItemName] = useState('');
 
   const calculateDays = (start, end) => {
@@ -102,7 +98,7 @@ const Orders = () => {
   };
 
   const emptyOrderTemplate = {
-    id: `ALP-00${orders.length + 1}`,
+    id: `ORD-00${orders.length + 1}`,
     customerName: '',
     phone: '',
     source: 'Instagram',
@@ -111,7 +107,7 @@ const Orders = () => {
     daysCount: 14,
     product: 'Uşaq Yorğanı',
     yarnTypes: ['Alize Puffy'],
-    colors: ['Bej / Krem'],
+    colors: ['Bej / Krem (Kod: 310)'],
     knitType: 'Klassik Hörgü',
     size: '90x90 cm',
     costPrice: '25',
@@ -151,13 +147,13 @@ const Orders = () => {
     };
     setOrders([orderToAdd, ...orders]);
     setIsAddModalOpen(false);
-    setNewOrder({ ...emptyOrderTemplate, id: `ALP-00${orders.length + 2}` });
+    setNewOrder({ ...emptyOrderTemplate, id: `ORD-00${orders.length + 2}` });
   };
 
   const handleEditClick = (order) => {
     setCurrentOrder({ 
       ...order, 
-      colors: order.colors || [order.color || 'Bej'],
+      colors: order.colors || [order.color || 'Bej / Krem (Kod: 310)'],
       yarnTypes: order.yarnTypes || [order.yarnType || 'Alize Puffy'],
       knitType: order.knitType || 'Klassik Hörgü',
       size: order.size || '90x90 cm',
@@ -184,13 +180,18 @@ const Orders = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusStyle = (status) => {
     switch (status) {
-      case 'Hazırlanır': return '#f57f17';
-      case 'Hazırdır': return '#0288d1';
-      case 'Təhvil verildi': return '#2e7d32';
-      case 'Ləğv edildi': return '#d32f2f';
-      default: return '#555';
+      case 'Hazırlanır': 
+        return { background: '#fef08a', color: '#854d0e', borderLeft: '4px solid #eab308' };
+      case 'Hazırdır': 
+        return { background: '#dcfce7', color: '#166534', borderLeft: '4px solid #22c55e' };
+      case 'Təhvil verildi': 
+        return { background: '#e0f2fe', color: '#0369a1', borderLeft: '4px solid #0ea5e9' };
+      case 'Ləğv edildi': 
+        return { background: '#fee2e2', color: '#991b1b', borderLeft: '4px solid #ef4444' };
+      default: 
+        return { background: '#f3f4f6', color: '#374151', borderLeft: '4px solid #9ca3af' };
     }
   };
 
@@ -221,27 +222,26 @@ const Orders = () => {
     setCurrObj({ ...currObj, colors: updatedColors });
   };
 
-  const getSourceIcon = (srcName) => {
+  const getSourceDetails = (srcName) => {
     const found = sources.find(s => s.name === srcName);
-    return found ? found.icon : '📌';
+    return found ? found : { name: srcName, icon: '📌' };
   };
 
-  // Məhsulun hörgü tələb edib-etmədiyini yoxlamaq (Məsələn Pampers tortu və s. üçün hörgü lazım deyil)
   const isKnitProduct = (prodName) => {
     const nonKnitProducts = ['Pampers Tortu', 'Gift Box'];
     return !nonKnitProducts.includes(prodName);
   };
 
   return (
-    <div style={{ padding: '30px', backgroundColor: '#FDFBF7', minHeight: '100vh', fontFamily: 'sans-serif', color: '#4A3B32' }}>
+    <div style={{ padding: '30px', backgroundColor: '#FDFBF7', minHeight: '100vh', fontFamily: 'sans-serif', color: '#4A3B32', direction: 'ltr' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid #EFEBE9', paddingBottom: '15px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#3D2C22', margin: 0 }}>Sifarişlər</h1>
         <button
           onClick={() => {
-            setNewOrder({ ...emptyOrderTemplate, id: `ALP-00${orders.length + 1}` });
+            setNewOrder({ ...emptyOrderTemplate, id: `ORD-00${orders.length + 1}` });
             setIsAddModalOpen(true);
           }}
-          style={{ backgroundColor: '#2E7D32', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+          style={{ backgroundColor: '#4A3B32', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
         >
           + Yeni Sifariş
         </button>
@@ -263,7 +263,7 @@ const Orders = () => {
             <tr style={{ backgroundColor: '#EFEBE9', color: '#5C4033', fontSize: '11px', textTransform: 'uppercase' }}>
               <th style={{ padding: '10px' }}>Kod</th>
               <th style={{ padding: '10px' }}>Müştəri / Tel</th>
-              <th style={{ padding: '10px', textAlign: 'center' }}>Mənbə</th>
+              <th style={{ padding: '10px' }}>Mənbə</th>
               <th style={{ padding: '10px' }}>Tarix</th>
               <th style={{ padding: '10px' }}>Məhsul</th>
               <th style={{ padding: '10px' }}>İpin Növü</th>
@@ -281,9 +281,12 @@ const Orders = () => {
                 const formatDateStr = (dStr) => {
                   if (!dStr) return '';
                   const parts = dStr.split('-');
-                  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
+                  if (parts.length === 3) return `${parts[2]} / ${parts[1]} / ${parts[0].slice(2)}`;
                   return dStr;
                 };
+
+                const srcInfo = getSourceDetails(order.source);
+                const currentStatusStyle = getStatusStyle(order.status);
 
                 return (
                   <tr key={order.id} style={{ borderBottom: '1px solid #EFEBE9' }}>
@@ -292,8 +295,9 @@ const Orders = () => {
                       <div style={{ fontWeight: 'bold', color: '#3D2C22' }}>{order.customerName}</div>
                       <div style={{ fontSize: '11px', color: '#777', marginTop: '2px' }}>{order.phone}</div>
                     </td>
-                    <td style={{ padding: '10px', textAlign: 'center', fontSize: '18px' }} title={order.source}>
-                      {getSourceIcon(order.source)}
+                    <td style={{ padding: '10px', fontSize: '12px', fontWeight: 'bold', color: '#4A3B32' }}>
+                      <span style={{ marginRight: '6px', fontSize: '15px' }}>{srcInfo.icon}</span>
+                      {srcInfo.name}
                     </td>
                     <td style={{ padding: '10px', fontSize: '11px' }}>
                       <div>{formatDateStr(order.orderDate)}</div>
@@ -309,7 +313,7 @@ const Orders = () => {
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        style={{ padding: '4px 6px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '11px', background: '#fff', cursor: 'pointer', fontWeight: 'bold', color: getStatusColor(order.status) }}
+                        style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', ...currentStatusStyle }}
                       >
                         <option value="Hazırlanır">Hazırlanır</option>
                         <option value="Hazırdır">Hazırdır</option>
@@ -333,7 +337,6 @@ const Orders = () => {
         </table>
       </div>
 
-      {/* Əsas Əlavə Et / Redaktə Et Modalı */}
       {(isAddModalOpen || isEditModalOpen) && (() => {
         const isEditing = isEditModalOpen;
         const currentData = isEditing ? currentOrder : newOrder;
@@ -354,7 +357,6 @@ const Orders = () => {
 
               <form onSubmit={isEditing ? handleEditSubmit : handleAddSubmit}>
                 
-                {/* Tarixlər */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Sifariş Tarixi</label>
@@ -368,7 +370,6 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Müştəri / Tel */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Müştəri Adı</label>
@@ -380,15 +381,12 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Mənbə */}
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Mənbə</label>
                   <select 
                     value={currentData.source} 
                     onChange={(e) => {
-                      if (e.target.value === 'ADD_NEW') {
-                        setManageModalType('sources');
-                      } else if (e.target.value === 'EDIT_LIST') {
+                      if (e.target.value === 'ADD_NEW' || e.target.value === 'EDIT_LIST') {
                         setManageModalType('sources');
                       } else {
                         setCurrentData({...currentData, source: e.target.value});
@@ -405,15 +403,12 @@ const Orders = () => {
                   </select>
                 </div>
 
-                {/* Məhsul */}
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Məhsul</label>
                   <select 
                     value={currentData.product} 
                     onChange={(e) => {
-                      if (e.target.value === 'ADD_NEW') {
-                        setManageModalType('products');
-                      } else if (e.target.value === 'EDIT_LIST') {
+                      if (e.target.value === 'ADD_NEW' || e.target.value === 'EDIT_LIST') {
                         setManageModalType('products');
                       } else {
                         setCurrentData({...currentData, product: e.target.value});
@@ -430,7 +425,6 @@ const Orders = () => {
                   </select>
                 </div>
 
-                {/* Hörgü Növü və Ölçü seçimləri (Əgər məhsul hörgü tələb edirsə görünür) */}
                 {isKnitProduct(currentData.product) && (
                   <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                     <div style={{ flex: 1 }}>
@@ -438,8 +432,7 @@ const Orders = () => {
                       <select 
                         value={currentData.knitType} 
                         onChange={(e) => {
-                          if (e.target.value === 'ADD_NEW') setManageModalType('knitTypes');
-                          else if (e.target.value === 'EDIT_LIST') setManageModalType('knitTypes');
+                          if (e.target.value === 'ADD_NEW' || e.target.value === 'EDIT_LIST') setManageModalType('knitTypes');
                           else setCurrentData({...currentData, knitType: e.target.value});
                         }} 
                         style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
@@ -457,8 +450,7 @@ const Orders = () => {
                       <select 
                         value={currentData.size} 
                         onChange={(e) => {
-                          if (e.target.value === 'ADD_NEW') setManageModalType('sizes');
-                          else if (e.target.value === 'EDIT_LIST') setManageModalType('sizes');
+                          if (e.target.value === 'ADD_NEW' || e.target.value === 'EDIT_LIST') setManageModalType('sizes');
                           else setCurrentData({...currentData, size: e.target.value});
                         }} 
                         style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
@@ -474,7 +466,6 @@ const Orders = () => {
                   </div>
                 )}
 
-                {/* İpin Növü */}
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>İpin Növü</label>
                   <select 
@@ -488,7 +479,6 @@ const Orders = () => {
                   </select>
                 </div>
 
-                {/* Rənglərin seçimi (Alize Puffy seçilibsə Stok bazasından rəng kodu və adı ilə görünür) */}
                 <div style={{ marginBottom: '12px', border: '1px solid #D7CCC8', borderRadius: '6px', padding: '10px', background: '#FAFAFA' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: '#5C4033' }}>
                     Rənglər (Birdən çox seçə bilərsiniz): <span style={{ color: '#2e7d32' }}>Seçilib: {(currentData.colors || []).join(', ') || 'Yoxdur'}</span>
@@ -502,12 +492,11 @@ const Orders = () => {
                   />
                   <div style={{ maxHeight: '110px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {isAlizePuffy ? (
-                      // Stok bazasından gələn Alize Puffy rəngləri (Kod və ad ilə)
                       stockYarns
                         .filter(y => `${y.name} ${y.code}`.toLowerCase().includes(colorSearch.toLowerCase()))
                         .map(yItem => {
                           const displayLabel = `${yItem.name} (Kod: ${yItem.code})`;
-                          const isSelected = (currentData.colors || []).includes(displayLabel) || (currentData.colors || []).includes(yItem.name);
+                          const isSelected = (currentData.colors || []).includes(displayLabel);
                           return (
                             <div 
                               key={yItem.id || yItem.code}
@@ -520,7 +509,6 @@ const Orders = () => {
                           );
                         })
                     ) : (
-                      // Digər iplər üçün adi rəng siyahısı
                       ['Bej / Krem', 'Çəhrayı', 'Mavi', 'Ağ', 'Yaşıl', 'Qəhvəyi', 'Sarı']
                         .filter(c => c.toLowerCase().includes(colorSearch.toLowerCase()))
                         .map(colorItem => {
@@ -540,7 +528,6 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Materiallar */}
                 <div style={{ border: '1px solid #EFEBE9', borderRadius: '8px', padding: '12px', marginBottom: '12px', background: '#FAFAFA' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: '#5C4033' }}>İstifadə Edilən Materiallar</label>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
@@ -568,7 +555,6 @@ const Orders = () => {
                   ))}
                 </div>
 
-                {/* Qiymətlər */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Maya Dəyəri (AZN)</label>
@@ -580,7 +566,6 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Beh və Ödəniş */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Beh (AZN)</label>
@@ -595,7 +580,6 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Qalıq */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Qalıq (Avtomatik)</label>
@@ -610,7 +594,6 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Çatdırılma Seçimi (Əgər varsa ünvan və məbləğ açılır, yoxdursa görünmür) */}
                 <div style={{ marginBottom: '15px', borderTop: '1px solid #EFEBE9', paddingTop: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: '#3D2C22' }}>
                     <input 
@@ -636,10 +619,9 @@ const Orders = () => {
                   )}
                 </div>
 
-                {/* Düymələr */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #EFEBE9', paddingTop: '12px' }}>
                   <button type="button" onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }} style={{ padding: '8px 16px', border: '1px solid #D7CCC8', background: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Ləğv et</button>
-                  <button type="submit" style={{ padding: '8px 16px', background: '#8D6E63', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Yadda saxla</button>
+                  <button type="submit" style={{ padding: '8px 16px', background: '#4A3B32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Yadda saxla</button>
                 </div>
               </form>
 
@@ -648,7 +630,6 @@ const Orders = () => {
         );
       })()}
 
-      {/* Səliqəli İdarəetmə Modalı (Əlavə et / Düzəliş et / Sil) */}
       {manageModalType && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
           <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', width: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
@@ -661,7 +642,6 @@ const Orders = () => {
               <button onClick={() => { setManageModalType(null); setNewItemName(''); }} style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer' }}>✕</button>
             </div>
 
-            {/* Yeni element əlavə etmə hissəsi */}
             <div style={{ marginBottom: '15px', background: '#FAFAFA', padding: '10px', borderRadius: '8px', border: '1px solid #EFEBE9' }}>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '5px', color: '#5C4033' }}>Yeni element əlavə et</label>
               <div style={{ display: 'flex', gap: '6px' }}>
@@ -696,7 +676,6 @@ const Orders = () => {
               </div>
             </div>
 
-            {/* Mövcud elementlərin siyahısı və düzəliş/silmə */}
             <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#777', marginBottom: '2px' }}>Mövcud Siyahı:</div>
               {manageModalType === 'sources' && sources.map(src => (
@@ -704,7 +683,7 @@ const Orders = () => {
                   <span>{src.icon} {src.name}</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" onClick={() => {
-                      const updatedName = prompt("Yeni adı daxil edin:", src.name);
+                      const updatedName = window.prompt("Yeni adı daxil edin:", src.name);
                       if (updatedName && updatedName !== src.name) {
                         setSources(sources.map(s => s.name === src.name ? { ...s, name: updatedName } : s));
                       }
@@ -722,7 +701,7 @@ const Orders = () => {
                   <span>{prod}</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" onClick={() => {
-                      const updatedName = prompt("Yeni adı daxil edin:", prod);
+                      const updatedName = window.prompt("Yeni adı daxil edin:", prod);
                       if (updatedName && updatedName !== prod) setProducts(products.map(p => p === prod ? updatedName : p));
                     }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
                     <button type="button" onClick={() => {
@@ -738,7 +717,7 @@ const Orders = () => {
                   <span>{kt}</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" onClick={() => {
-                      const updatedName = prompt("Yeni adı daxil edin:", kt);
+                      const updatedName = window.prompt("Yeni adı daxil edin:", kt);
                       if (updatedName && updatedName !== kt) setKnotTypesList(knitTypesList.map(k => k === kt ? updatedName : k));
                     }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
                     <button type="button" onClick={() => {
@@ -754,7 +733,7 @@ const Orders = () => {
                   <span>{sz}</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" onClick={() => {
-                      const updatedName = prompt("Yeni adı daxil edin:", sz);
+                      const updatedName = window.prompt("Yeni adı daxil edin:", sz);
                       if (updatedName && updatedName !== sz) setSizesList(sizesList.map(s => s === sz ? updatedName : s));
                     }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
                     <button type="button" onClick={() => {

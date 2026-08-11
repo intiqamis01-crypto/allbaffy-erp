@@ -6,31 +6,28 @@ const Orders = () => {
     if (savedOrders) {
       try {
         const parsed = JSON.parse(savedOrders);
-        if (parsed && parsed.length > 0) {
-          return parsed;
-        }
+        if (parsed && parsed.length > 0) return parsed;
       } catch (e) {
         console.error(e);
       }
     }
-    // Sizin daxil etdiyiniz məlumatların silinməməsi üçün ilkin baza
     return [
       {
-        id: 'ORD-001',
+        id: 'ALP-001',
         orderDate: '2026-08-01',
         deliveryDate: '2026-08-08',
-        customerName: 'Aygün Məmmədova',
-        phone: '+994 50 123 45 67',
-        source: 'Instagram',
-        product: 'Toxunma Odyal',
+        customerName: 'Aysel',
+        phone: '0501234567',
+        source: 'WhatsApp',
+        product: 'Uşaq Yorğanı',
         category: 'Körpə Tekstili',
         advance: '10',
-        advanceMethod: 'Nağd',
-        remaining: '5',
+        advanceMethod: 'Kart',
+        remaining: '20',
         remainingMethod: 'Nağd',
-        deliveryAddress: '',
-        deliveryPrice: '0',
-        profit: '15 AZN',
+        deliveryAddress: 'Koroğlu m/s',
+        deliveryPrice: '5',
+        profit: '+18.00 AZN',
         status: 'Hazırlanır'
       }
     ];
@@ -46,7 +43,7 @@ const Orders = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
 
   const [newOrder, setNewOrder] = useState({
-    id: `ORD-00${orders.length + 1}`,
+    id: `ALP-00${orders.length + 1}`,
     orderDate: '',
     deliveryDate: '',
     customerName: '',
@@ -79,7 +76,7 @@ const Orders = () => {
     setOrders([newOrder, ...orders]);
     setIsAddModalOpen(false);
     setNewOrder({
-      id: `ORD-00${orders.length + 2}`,
+      id: `ALP-00${orders.length + 2}`,
       orderDate: '',
       deliveryDate: '',
       customerName: '',
@@ -135,7 +132,7 @@ const Orders = () => {
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          style={{ backgroundColor: '#5C4033', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+          style={{ backgroundColor: '#2E7D32', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
         >
           + Yeni Sifariş
         </button>
@@ -151,6 +148,7 @@ const Orders = () => {
         />
       </div>
 
+      {/* 1-ci şəkildəki cədvəl strukturu: Kod, Müştəri Adı/Nömrə, Məhsul Adı, Kateqoriya, Qazanc, Status, Əməliyyat */}
       <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid #EFEBE9' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
           <thead>
@@ -215,7 +213,7 @@ const Orders = () => {
         </table>
       </div>
 
-      {/* Yeni Sifariş Modalı */}
+      {/* 2-ci şəkildəki açılan pəncərə (Yeni Sifariş) */}
       {isAddModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '14px', width: '500px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
@@ -323,7 +321,7 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Düzəliş Modalı */}
+      {/* 2-ci şəkildəki açılan pəncərə (Sifarişi Redaktə Et) */}
       {isEditModalOpen && currentOrder && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '14px', width: '500px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>

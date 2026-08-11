@@ -58,7 +58,7 @@ const Orders = () => {
   const [products, setProducts] = useState(['Uşaq Yorğanı', 'Şərf', 'Gift Box', 'Pampers Tortu', 'Jaket / Jilet', 'Oyun Matı', 'Toxunma Odyal']);
   const [yarnTypesList, setYarnTypesList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Fine Color']);
   const [colorsList, setColorsList] = useState(['Bej / Krem', 'Çəhrayı', 'Mavi', 'Ağ', 'Yaşıl', 'Bej']);
-  const [knitTypesList, setKnotTypesList] = useState(['Klassik Hörgü', 'Şahmat uazoru', 'Ziqzaq', 'Sadə'];
+  const [knitTypesList, setKnotTypesList] = useState(['Klassik Hörgü', 'Şahmat uazoru', 'Ziqzaq', 'Sadə']);
   const [sizesList, setSizesList] = useState(['90x90 cm', '100x100 cm', '120x150 cm', 'Standart']);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,8 +69,6 @@ const Orders = () => {
   // İdarəetmə Modalları üçün state-lər
   const [manageModalType, setManageModalType] = useState(null); // 'sources' və ya 'products'
   const [newItemName, setNewItemName] = useState('');
-  const [editItemOldName, setEditItemOldName] = useState('');
-  const [editItemNewName, setEditItemNewName] = useState('');
 
   const calculateDays = (start, end) => {
     if (!start || !end) return 0;
@@ -546,7 +544,7 @@ const Orders = () => {
               <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#3D2C22' }}>
                 {manageModalType === 'sources' ? 'Mənbələri İdarə Et' : 'Məhsulları İdarə Et'}
               </h3>
-              <button onClick={() => { setManageModalType(null); setNewItemName(''); setEditItemOldName(''); }} style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => { setManageModalType(null); setNewItemName(''); }} style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer' }}>✕</button>
             </div>
 
             {/* Yeni element əlavə etmə hissəsi */}

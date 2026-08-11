@@ -33,6 +33,7 @@ const Orders = () => {
         advanceMethod: 'Kart',
         remaining: '30',
         remainingMethod: 'Nağd',
+        hasDelivery: true,
         deliveryAddress: 'Gənclik m/s',
         deliveryPrice: '3',
         materials: [
@@ -46,20 +47,41 @@ const Orders = () => {
     localStorage.setItem('allbaffy_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // Dinamik siyahılar və ikonları
+  // Real və səliqəli ikonlar ilə Mənbələr
   const [sources, setSources] = useState([
-    { name: 'Instagram', icon: '📸' },
-    { name: 'WhatsApp', icon: '🟢' },
-    { name: 'TikTok', icon: '🎬' },
+    { name: 'Instagram', icon: '📷' },
+    { name: 'WhatsApp', icon: '💬' },
+    { name: 'TikTok', icon: '🎵' },
     { name: 'Tövsiyə', icon: '⭐' },
-    { name: 'Digər', icon: '📌' }
+    { name: 'Digər', icon: '📌' },
+    { name: 'Mağaza', icon: '🏪' }
   ]);
 
   const [products, setProducts] = useState(['Uşaq Yorğanı', 'Şərf', 'Gift Box', 'Pampers Tortu', 'Jaket / Jilet', 'Oyun Matı', 'Toxunma Odyal']);
-  const [yarnTypesList, setYarnTypesList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Fine Color']);
-  const [colorsList, setColorsList] = useState(['Bej / Krem', 'Çəhrayı', 'Mavi', 'Ağ', 'Yaşıl', 'Bej']);
+  const [yarnTypesList, setYarnTypesList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Fine Color', 'Digər ip']);
   const [knitTypesList, setKnotTypesList] = useState(['Klassik Hörgü', 'Şahmat uazoru', 'Ziqzaq', 'Sadə']);
   const [sizesList, setSizesList] = useState(['90x90 cm', '100x100 cm', '120x150 cm', 'Standart']);
+
+  // Stok ip bazasını localStorage-dan oxumaq (İp stoku səhifəsi ilə əlaqə)
+  const [stockYarns, setStockYarns] = useState(() => {
+    const savedStock = localStorage.getItem('allbaffy_yarns');
+    if (savedStock) {
+      try {
+        const parsed = JSON.parse(savedStock);
+        if (parsed && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    // Əgər stokda ip yoxdursa nümunə rənglər
+    return [
+      { id: 1, name: 'Ağ', code: '001', brand: 'Alize Puffy' },
+      { id: 2, name: 'Bej / Krem', code: '310', brand: 'Alize Puffy' },
+      { id: 3, name: 'Çəhrayı', code: '185', brand: 'Alize Puffy' },
+      { id: 4, name: 'Mavi', code: '141', brand: 'Alize Puffy' },
+      { id: 5, name: 'Yaşıl', code: '118', brand: 'Alize Puffy' }
+    ];
+  });
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -67,7 +89,7 @@ const Orders = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
 
   // İdarəetmə Modalları üçün state-lər
-  const [manageModalType, setManageModalType] = useState(null); // 'sources' və ya 'products'
+  const [manageModalType, setManageModalType] = useState(null); // 'sources', 'products', 'knitTypes', 'sizes'
   const [newItemName, setNewItemName] = useState('');
 
   const calculateDays = (start, end) => {
@@ -89,7 +111,7 @@ const Orders = () => {
     daysCount: 14,
     product: 'Uşaq Yorğanı',
     yarnTypes: ['Alize Puffy'],
-    colors: ['Bej'],
+    colors: ['Bej / Krem'],
     knitType: 'Klassik Hörgü',
     size: '90x90 cm',
     costPrice: '25',
@@ -99,6 +121,7 @@ const Orders = () => {
     advanceMethod: 'Kart',
     remaining: '40',
     remainingMethod: 'Nağd',
+    hasDelivery: false,
     deliveryAddress: '',
     deliveryPrice: '0',
     materials: []
@@ -137,7 +160,8 @@ const Orders = () => {
       colors: order.colors || [order.color || 'Bej'],
       yarnTypes: order.yarnTypes || [order.yarnType || 'Alize Puffy'],
       knitType: order.knitType || 'Klassik Hörgü',
-      size: order.size || '90x90 cm'
+      size: order.size || '90x90 cm',
+      hasDelivery: order.hasDelivery !== undefined ? order.hasDelivery : (Boolean(order.deliveryAddress) || Number(order.deliveryPrice) > 0)
     });
     setIsEditModalOpen(true);
   };
@@ -202,6 +226,12 @@ const Orders = () => {
     return found ? found.icon : '📌';
   };
 
+  // Məhsulun hörgü tələb edib-etmədiyini yoxlamaq (Məsələn Pampers tortu və s. üçün hörgü lazım deyil)
+  const isKnitProduct = (prodName) => {
+    const nonKnitProducts = ['Pampers Tortu', 'Gift Box'];
+    return !nonKnitProducts.includes(prodName);
+  };
+
   return (
     <div style={{ padding: '30px', backgroundColor: '#FDFBF7', minHeight: '100vh', fontFamily: 'sans-serif', color: '#4A3B32' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid #EFEBE9', paddingBottom: '15px' }}>
@@ -235,7 +265,7 @@ const Orders = () => {
               <th style={{ padding: '10px' }}>Müştəri / Tel</th>
               <th style={{ padding: '10px', textAlign: 'center' }}>Mənbə</th>
               <th style={{ padding: '10px' }}>Tarix</th>
-              <th style={{ padding: '10px' }}>Məhsul Adı</th>
+              <th style={{ padding: '10px' }}>Məhsul</th>
               <th style={{ padding: '10px' }}>İpin Növü</th>
               <th style={{ padding: '10px' }}>Rənglər</th>
               <th style={{ padding: '10px' }}>Maya Dəyəri</th>
@@ -267,7 +297,7 @@ const Orders = () => {
                     </td>
                     <td style={{ padding: '10px', fontSize: '11px' }}>
                       <div>{formatDateStr(order.orderDate)}</div>
-                      <div style={{ marginTop: '2px' }}>{formatDateStr(order.deliveryDate)} <strong style={{ color: '#2e7d32' }}>({order.daysCount || 0} gün)</strong></div>
+                      <div style={{ marginTop: '2px' }}>{formatDateStr(order.deliveryDate)} <span style={{ color: '#888' }}>({order.daysCount || 0} gün)</span></div>
                     </td>
                     <td style={{ padding: '10px' }}>{order.product}</td>
                     <td style={{ padding: '10px' }}>{Array.isArray(order.yarnTypes) ? order.yarnTypes.join(', ') : order.yarnType}</td>
@@ -310,6 +340,9 @@ const Orders = () => {
         const setCurrentData = isEditing ? setCurrentOrder : setNewOrder;
         const titleText = isEditing ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş';
 
+        const activeYarnType = Array.isArray(currentData.yarnTypes) ? currentData.yarnTypes[0] : currentData.yarnType;
+        const isAlizePuffy = activeYarnType === 'Alize Puffy';
+
         return (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
             <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '14px', width: '580px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
@@ -329,7 +362,7 @@ const Orders = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>
-                      Təhvil Tarixi — <span style={{ color: '#2e7d32' }}>{currentData.daysCount || 0} gün var</span>
+                      Təhvil Tarixi — <span style={{ color: '#777' }}>{currentData.daysCount || 0} gün</span>
                     </label>
                     <input type="date" value={currentData.deliveryDate} onChange={(e) => handleDateChange(currentData, setCurrentData, 'deliveryDate', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #D7CCC8', borderRadius: '6px', outline: 'none', fontSize: '13px', boxSizing: 'border-box' }} />
                   </div>
@@ -347,73 +380,105 @@ const Orders = () => {
                   </div>
                 </div>
 
-                {/* Mənbə seçimi və Səliqəli İdarəetmə düyməsi */}
+                {/* Mənbə */}
                 <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#5C4033' }}>Sifarişin Gəldiyi Mənbə</label>
-                    <button type="button" onClick={() => setManageModalType('sources')} style={{ background: 'none', border: 'none', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>⚙️ Əlavə et və ya düzəliş et</button>
-                  </div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Mənbə</label>
                   <select 
                     value={currentData.source} 
-                    onChange={(e) => setCurrentData({...currentData, source: e.target.value})} 
+                    onChange={(e) => {
+                      if (e.target.value === 'ADD_NEW') {
+                        setManageModalType('sources');
+                      } else if (e.target.value === 'EDIT_LIST') {
+                        setManageModalType('sources');
+                      } else {
+                        setCurrentData({...currentData, source: e.target.value});
+                      }
+                    }} 
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
                   >
                     {sources.map(src => (
                       <option key={src.name} value={src.name}>{src.icon} {src.name}</option>
                     ))}
+                    <option disabled style={{ color: '#ccc' }}>──────────</option>
+                    <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#2e7d32' }}>+ Əlavə et</option>
+                    <option value="EDIT_LIST" style={{ fontWeight: 'bold', color: '#1976d2' }}>⚙️ Düzəliş et</option>
                   </select>
                 </div>
 
-                {/* Məhsul Adı və Səliqəli İdarəetmə düyməsi */}
+                {/* Məhsul */}
                 <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#5C4033' }}>Məhsul Adı</label>
-                    <button type="button" onClick={() => setManageModalType('products')} style={{ background: 'none', border: 'none', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>⚙️ Əlavə et və ya düzəliş et</button>
-                  </div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Məhsul</label>
                   <select 
                     value={currentData.product} 
-                    onChange={(e) => setCurrentData({...currentData, product: e.target.value})} 
+                    onChange={(e) => {
+                      if (e.target.value === 'ADD_NEW') {
+                        setManageModalType('products');
+                      } else if (e.target.value === 'EDIT_LIST') {
+                        setManageModalType('products');
+                      } else {
+                        setCurrentData({...currentData, product: e.target.value});
+                      }
+                    }} 
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
                   >
                     {products.map(prod => (
                       <option key={prod} value={prod}>{prod}</option>
                     ))}
+                    <option disabled style={{ color: '#ccc' }}>──────────</option>
+                    <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#2e7d32' }}>+ Əlavə et</option>
+                    <option value="EDIT_LIST" style={{ fontWeight: 'bold', color: '#1976d2' }}>⚙️ Düzəliş et</option>
                   </select>
                 </div>
 
-                {/* Hörgü Növü və Ölçü seçimləri */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Hörgü Növü</label>
-                    <select 
-                      value={currentData.knitType} 
-                      onChange={(e) => setCurrentData({...currentData, knitType: e.target.value})} 
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
-                    >
-                      {knitTypesList.map(kt => (
-                        <option key={kt} value={kt}>{kt}</option>
-                      ))}
-                    </select>
+                {/* Hörgü Növü və Ölçü seçimləri (Əgər məhsul hörgü tələb edirsə görünür) */}
+                {isKnitProduct(currentData.product) && (
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Hörgü Növü</label>
+                      <select 
+                        value={currentData.knitType} 
+                        onChange={(e) => {
+                          if (e.target.value === 'ADD_NEW') setManageModalType('knitTypes');
+                          else if (e.target.value === 'EDIT_LIST') setManageModalType('knitTypes');
+                          else setCurrentData({...currentData, knitType: e.target.value});
+                        }} 
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
+                      >
+                        {knitTypesList.map(kt => (
+                          <option key={kt} value={kt}>{kt}</option>
+                        ))}
+                        <option disabled style={{ color: '#ccc' }}>──────────</option>
+                        <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#2e7d32' }}>+ Əlavə et</option>
+                        <option value="EDIT_LIST" style={{ fontWeight: 'bold', color: '#1976d2' }}>⚙️ Düzəliş et</option>
+                      </select>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Ölçü</label>
+                      <select 
+                        value={currentData.size} 
+                        onChange={(e) => {
+                          if (e.target.value === 'ADD_NEW') setManageModalType('sizes');
+                          else if (e.target.value === 'EDIT_LIST') setManageModalType('sizes');
+                          else setCurrentData({...currentData, size: e.target.value});
+                        }} 
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
+                      >
+                        {sizesList.map(sz => (
+                          <option key={sz} value={sz}>{sz}</option>
+                        ))}
+                        <option disabled style={{ color: '#ccc' }}>──────────</option>
+                        <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#2e7d32' }}>+ Əlavə et</option>
+                        <option value="EDIT_LIST" style={{ fontWeight: 'bold', color: '#1976d2' }}>⚙️ Düzəliş et</option>
+                      </select>
+                    </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Ölçü</label>
-                    <select 
-                      value={currentData.size} 
-                      onChange={(e) => setCurrentData({...currentData, size: e.target.value})} 
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
-                    >
-                      {sizesList.map(sz => (
-                        <option key={sz} value={sz}>{sz}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                )}
 
                 {/* İpin Növü */}
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>İpin Növü</label>
                   <select 
-                    value={Array.isArray(currentData.yarnTypes) ? currentData.yarnTypes[0] : currentData.yarnType} 
+                    value={activeYarnType} 
                     onChange={(e) => setCurrentData({...currentData, yarnTypes: [e.target.value], yarnType: e.target.value})} 
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', background: 'white', fontSize: '13px', outline: 'none' }}
                   >
@@ -423,7 +488,7 @@ const Orders = () => {
                   </select>
                 </div>
 
-                {/* Rənglərin seçimi və axtarışı */}
+                {/* Rənglərin seçimi (Alize Puffy seçilibsə Stok bazasından rəng kodu və adı ilə görünür) */}
                 <div style={{ marginBottom: '12px', border: '1px solid #D7CCC8', borderRadius: '6px', padding: '10px', background: '#FAFAFA' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: '#5C4033' }}>
                     Rənglər (Birdən çox seçə bilərsiniz): <span style={{ color: '#2e7d32' }}>Seçilib: {(currentData.colors || []).join(', ') || 'Yoxdur'}</span>
@@ -435,22 +500,43 @@ const Orders = () => {
                     onChange={(e) => setColorSearch(e.target.value)}
                     style={{ width: '100%', padding: '6px 10px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '12px', marginBottom: '8px', outline: 'none', background: '#fff', boxSizing: 'border-box' }}
                   />
-                  <div style={{ maxHeight: '100px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {colorsList
-                      .filter(c => c.toLowerCase().includes(colorSearch.toLowerCase()))
-                      .map(colorItem => {
-                        const isSelected = (currentData.colors || []).includes(colorItem);
-                        return (
-                          <div 
-                            key={colorItem}
-                            onClick={() => toggleColorSelection(currentData, setCurrentData, colorItem)}
-                            style={{ padding: '5px 8px', borderRadius: '4px', backgroundColor: isSelected ? '#E8F5E9' : '#fff', border: isSelected ? '1px solid #81C784' : '1px solid #E0E0E0', cursor: 'pointer', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                          >
-                            <span>{colorItem}</span>
-                            {isSelected && <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✓</span>}
-                          </div>
-                        );
-                      })}
+                  <div style={{ maxHeight: '110px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {isAlizePuffy ? (
+                      // Stok bazasından gələn Alize Puffy rəngləri (Kod və ad ilə)
+                      stockYarns
+                        .filter(y => `${y.name} ${y.code}`.toLowerCase().includes(colorSearch.toLowerCase()))
+                        .map(yItem => {
+                          const displayLabel = `${yItem.name} (Kod: ${yItem.code})`;
+                          const isSelected = (currentData.colors || []).includes(displayLabel) || (currentData.colors || []).includes(yItem.name);
+                          return (
+                            <div 
+                              key={yItem.id || yItem.code}
+                              onClick={() => toggleColorSelection(currentData, setCurrentData, displayLabel)}
+                              style={{ padding: '5px 8px', borderRadius: '4px', backgroundColor: isSelected ? '#E8F5E9' : '#fff', border: isSelected ? '1px solid #81C784' : '1px solid #E0E0E0', cursor: 'pointer', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                            >
+                              <span>{yItem.name} — <strong style={{ color: '#555' }}>Kod: {yItem.code}</strong></span>
+                              {isSelected && <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✓</span>}
+                            </div>
+                          );
+                        })
+                    ) : (
+                      // Digər iplər üçün adi rəng siyahısı
+                      ['Bej / Krem', 'Çəhrayı', 'Mavi', 'Ağ', 'Yaşıl', 'Qəhvəyi', 'Sarı']
+                        .filter(c => c.toLowerCase().includes(colorSearch.toLowerCase()))
+                        .map(colorItem => {
+                          const isSelected = (currentData.colors || []).includes(colorItem);
+                          return (
+                            <div 
+                              key={colorItem}
+                              onClick={() => toggleColorSelection(currentData, setCurrentData, colorItem)}
+                              style={{ padding: '5px 8px', borderRadius: '4px', backgroundColor: isSelected ? '#E8F5E9' : '#fff', border: isSelected ? '1px solid #81C784' : '1px solid #E0E0E0', cursor: 'pointer', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                            >
+                              <span>{colorItem}</span>
+                              {isSelected && <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>✓</span>}
+                            </div>
+                          );
+                        })
+                    )}
                   </div>
                 </div>
 
@@ -524,6 +610,32 @@ const Orders = () => {
                   </div>
                 </div>
 
+                {/* Çatdırılma Seçimi (Əgər varsa ünvan və məbləğ açılır, yoxdursa görünmür) */}
+                <div style={{ marginBottom: '15px', borderTop: '1px solid #EFEBE9', paddingTop: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', color: '#3D2C22' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={Boolean(currentData.hasDelivery)} 
+                      onChange={(e) => setCurrentData({...currentData, hasDelivery: e.target.checked})} 
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    Çatdırılma var
+                  </label>
+
+                  {currentData.hasDelivery && (
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', background: '#FAFAFA', padding: '10px', borderRadius: '8px', border: '1px solid #EFEBE9' }}>
+                      <div style={{ flex: 2 }}>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Çatdırılma Ünvanı</label>
+                        <input type="text" placeholder="Məs: Gənclik m/s" value={currentData.deliveryAddress || ''} onChange={(e) => setCurrentData({...currentData, deliveryAddress: e.target.value})} style={{ width: '100%', padding: '7px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', fontSize: '12px', outline: 'none', background: '#fff' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#5C4033' }}>Məbləğ (AZN)</label>
+                        <input type="text" placeholder="0" value={currentData.deliveryPrice || ''} onChange={(e) => setCurrentData({...currentData, deliveryPrice: e.target.value})} style={{ width: '100%', padding: '7px 10px', border: '1px solid #D7CCC8', borderRadius: '6px', fontSize: '12px', outline: 'none', background: '#fff' }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Düymələr */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #EFEBE9', paddingTop: '12px' }}>
                   <button type="button" onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }} style={{ padding: '8px 16px', border: '1px solid #D7CCC8', background: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Ləğv et</button>
@@ -542,14 +654,16 @@ const Orders = () => {
           <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', width: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#3D2C22' }}>
-                {manageModalType === 'sources' ? 'Mənbələri İdarə Et' : 'Məhsulları İdarə Et'}
+                {manageModalType === 'sources' ? 'Mənbələri İdarə Et' : 
+                 manageModalType === 'products' ? 'Məhsulları İdarə Et' : 
+                 manageModalType === 'knitTypes' ? 'Hörgü Növlərini İdarə Et' : 'Ölçüləri İdarə Et'}
               </h3>
               <button onClick={() => { setManageModalType(null); setNewItemName(''); }} style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer' }}>✕</button>
             </div>
 
             {/* Yeni element əlavə etmə hissəsi */}
             <div style={{ marginBottom: '15px', background: '#FAFAFA', padding: '10px', borderRadius: '8px', border: '1px solid #EFEBE9' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '5px', color: '#5C4033' }}>Yeni {manageModalType === 'sources' ? 'Mənbə' : 'Məhsul'} Əlavə Et</label>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '5px', color: '#5C4033' }}>Yeni element əlavə et</label>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <input 
                   type="text" 
@@ -566,10 +680,12 @@ const Orders = () => {
                       if (!sources.some(s => s.name === newItemName)) {
                         setSources([...sources, { name: newItemName, icon: '📌' }]);
                       }
-                    } else {
-                      if (!products.includes(newItemName)) {
-                        setProducts([...products, newItemName]);
-                      }
+                    } else if (manageModalType === 'products') {
+                      if (!products.includes(newItemName)) setProducts([...products, newItemName]);
+                    } else if (manageModalType === 'knitTypes') {
+                      if (!knitTypesList.includes(newItemName)) setKnotTypesList([...knitTypesList, newItemName]);
+                    } else if (manageModalType === 'sizes') {
+                      if (!sizesList.includes(newItemName)) setSizesList([...sizesList, newItemName]);
                     }
                     setNewItemName('');
                   }}
@@ -582,74 +698,72 @@ const Orders = () => {
 
             {/* Mövcud elementlərin siyahısı və düzəliş/silmə */}
             <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#777', marginBottom: '2px' }}>Mövcud Siyahı (Düzəliş et və ya sil):</div>
-              {manageModalType === 'sources' ? (
-                sources.map(src => (
-                  <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
-                    <span>{src.icon} {src.name}</span>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          const updatedName = prompt("Yeni adı daxil edin:", src.name);
-                          if (updatedName && updatedName !== src.name) {
-                            setSources(sources.map(s => s.name === src.name ? { ...s, name: updatedName } : s));
-                          }
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}
-                      >
-                        ✎
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          if (sources.length <= 1) {
-                            alert('Ən azı 1 mənbə qalmalıdır!');
-                            return;
-                          }
-                          setSources(sources.filter(s => s.name !== src.name));
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}
-                      >
-                        🗑
-                      </button>
-                    </div>
+              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#777', marginBottom: '2px' }}>Mövcud Siyahı:</div>
+              {manageModalType === 'sources' && sources.map(src => (
+                <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                  <span>{src.icon} {src.name}</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button type="button" onClick={() => {
+                      const updatedName = prompt("Yeni adı daxil edin:", src.name);
+                      if (updatedName && updatedName !== src.name) {
+                        setSources(sources.map(s => s.name === src.name ? { ...s, name: updatedName } : s));
+                      }
+                    }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
+                    <button type="button" onClick={() => {
+                      if (sources.length <= 1) { alert('Ən azı 1 mənbə qalmalıdır!'); return; }
+                      setSources(sources.filter(s => s.name !== src.name));
+                    }} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}>🗑</button>
                   </div>
-                ))
-              ) : (
-                products.map(prod => (
-                  <div key={prod} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
-                    <span>{prod}</span>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          const updatedName = prompt("Yeni adı daxil edin:", prod);
-                          if (updatedName && updatedName !== prod) {
-                            setProducts(products.map(p => p === prod ? updatedName : p));
-                          }
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}
-                      >
-                        ✎
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          if (products.length <= 1) {
-                            alert('Ən azı 1 məhsul qalmalıdır!');
-                            return;
-                          }
-                          setProducts(products.filter(p => p !== prod));
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}
-                      >
-                        🗑
-                      </button>
-                    </div>
+                </div>
+              ))}
+
+              {manageModalType === 'products' && products.map(prod => (
+                <div key={prod} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                  <span>{prod}</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button type="button" onClick={() => {
+                      const updatedName = prompt("Yeni adı daxil edin:", prod);
+                      if (updatedName && updatedName !== prod) setProducts(products.map(p => p === prod ? updatedName : p));
+                    }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
+                    <button type="button" onClick={() => {
+                      if (products.length <= 1) { alert('Ən azı 1 məhsul qalmalıdır!'); return; }
+                      setProducts(products.filter(p => p !== prod));
+                    }} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}>🗑</button>
                   </div>
-                ))
-              )}
+                </div>
+              ))}
+
+              {manageModalType === 'knitTypes' && knitTypesList.map(kt => (
+                <div key={kt} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                  <span>{kt}</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button type="button" onClick={() => {
+                      const updatedName = prompt("Yeni adı daxil edin:", kt);
+                      if (updatedName && updatedName !== kt) setKnotTypesList(knitTypesList.map(k => k === kt ? updatedName : k));
+                    }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
+                    <button type="button" onClick={() => {
+                      if (knitTypesList.length <= 1) { alert('Ən azı 1 hörgü növü qalmalıdır!'); return; }
+                      setKnotTypesList(knitTypesList.filter(k => k !== kt));
+                    }} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}>🗑</button>
+                  </div>
+                </div>
+              ))}
+
+              {manageModalType === 'sizes' && sizesList.map(sz => (
+                <div key={sz} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEBE9', padding: '6px 8px', borderRadius: '6px', fontSize: '12px' }}>
+                  <span>{sz}</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button type="button" onClick={() => {
+                      const updatedName = prompt("Yeni adı daxil edin:", sz);
+                      if (updatedName && updatedName !== sz) setSizesList(sizesList.map(s => s === sz ? updatedName : s));
+                    }} style={{ background: 'none', border: 'none', color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>✎</button>
+                    <button type="button" onClick={() => {
+                      if (sizesList.length <= 1) { alert('Ən azı 1 ölçü qalmalıdır!'); return; }
+                      setSizesList(sizesList.filter(s => s !== sz));
+                    }} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontWeight: 'bold' }}>🗑</button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div style={{ marginTop: '15px', textAlign: 'right' }}>

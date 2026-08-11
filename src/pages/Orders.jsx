@@ -170,21 +170,21 @@ const Orders = () => {
       <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #EFEBE9', overflowX: 'auto', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1250px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#F5F2EF', color: '#5C4033', fontSize: '14px', fontWeight: 'normal' }}>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>KOD</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>MÜŞTƏRİ / TEL</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>MƏNBƏ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>TARİX</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>MƏHSUL</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>İPİN NÖVÜ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>RƏNGLƏR</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>HÖRGÜ NÖVÜ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>ÖLÇÜ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>MAYA DƏYƏRİ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>SATIŞ QİYMƏTİ</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>QAZANC</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal' }}>STATUS</th>
-              <th style={{ padding: '14px 12px', fontWeight: 'normal', textAlign: 'center' }}>ƏMƏLİYYAT</th>
+            <tr style={{ backgroundColor: '#F5F2EF', color: '#5C4033', fontSize: '14px' }}>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>KOD</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>MÜŞTƏRİ / TEL</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>MƏNBƏ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>TARİX</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>MƏHSUL</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>İPİN NÖVÜ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>RƏNGLƏR</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>HÖRGÜ NÖVÜ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>ÖLÇÜ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>MAYA DƏYƏRİ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>SATIŞ QİYMƏTİ</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>QAZANC</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold' }}>STATUS</th>
+              <th style={{ padding: '14px 12px', fontWeight: 'bold', textAlign: 'center' }}>ƏMƏLİYYAT</th>
             </tr>
           </thead>
           <tbody>

@@ -1,233 +1,385 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
 import { 
+  getFirestore, 
   collection, 
-  addDoc, 
   getDocs, 
+  addDoc, 
   updateDoc, 
-  deleteDoc, 
   doc, 
+  deleteDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 
 export default function Orders() {
+  const db = getFirestore();
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Modal idarəetməsi
+  const [showModal, setShowModal] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null); // Redaktə olunan sifariş
 
-  // Form inputları
-  const [customer, setCustomer] = useState('');
-  const [product, setProduct] = useState('');
-  const [amount, setAmount] = useState('');
-  const [status, setStatus] = useState('Gözləyir');
+  // Form state-ləri
+  const [formData, setFormData] = useState({
+    orderCode: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+    customerName: '',
+    phone: '',
+    productName: '',
+    madeOf: 'Alize Puffy ipi',
+    netPrice: '',
+    profit: '',
+    status: 'Gözləmədə'
+  });
 
-  // Edit rejimi üçün state
-  const [editingId, setEditingId] = useState(null);
-
-  const ordersRef = collection(db, 'orders');
-
-  // Məlumatları gətir
+  // Sifarişləri bazadan çəkmək
   const fetchOrders = async () => {
-    setLoading(true);
     try {
-      const querySnapshot = await getDocs(ordersRef);
-      const data = querySnapshot.docs.map(doc => ({
+      const querySnapshot = await getDocs(collection(db, 'orders'));
+      const ordersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setOrders(data);
-    } catch (err) {
-      console.error("Xəta baş verdi:", err);
+      setOrders(ordersList);
+    } catch (error) {
+      console.error("Sifarişləri çəkərkən xəta: ", error);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Əlavə et və ya Yenilə (Edit)
+  // Yeni sifariş əlavə etmək və ya mövcudu yeniləmək
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!customer || !product || !amount) return alert("Bütün xanaları doldurun!");
+    setLoading(true);
 
     try {
-      if (editingId) {
-        // Redaktə rejimi (Edit)
-        const orderDoc = doc(db, 'orders', editingId);
-        await updateDoc(orderDoc, {
-          customer,
-          product,
-          amount: Number(amount),
-          status,
-          updatedAt: serverTimestamp()
+      if (editingOrder) {
+        // Redaktə rejimi
+        const orderRef = doc(db, 'orders', editingOrder.id);
+        await updateDoc(orderRef, {
+          ...formData,
+          netPrice: Number(formData.netPrice),
+          profit: Number(formData.profit),
         });
-        setEditingId(null);
       } else {
-        // Yeni əlavə et
-        await addDoc(ordersRef, {
-          customer,
-          product,
-          amount: Number(amount),
-          status,
+        // Yeni əlavə etmə rejimi
+        await addDoc(collection(db, 'orders'), {
+          ...formData,
+          netPrice: Number(formData.netPrice),
+          profit: Number(formData.profit),
           createdAt: serverTimestamp()
         });
       }
 
-      // Formu sıfırla və siyahını yenilə
-      setCustomer('');
-      setProduct('');
-      setAmount('');
-      setStatus('Gözləyir');
+      closeModal();
       fetchOrders();
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Xəta baş verdi: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Edit knopkasına basdıqda xanaları doldur
-  const handleEdit = (order) => {
-    setEditingId(order.id);
-    setCustomer(order.customer);
-    setProduct(order.product);
-    setAmount(order.amount);
-    setStatus(order.status || 'Gözləyir');
+  // Modalı bağlamaq və formanı təmizləmək
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingOrder(null);
+    setFormData({
+      orderCode: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+      customerName: '',
+      phone: '',
+      productName: '',
+      madeOf: 'Alize Puffy ipi',
+      netPrice: '',
+      profit: '',
+      status: 'Gözləmədə'
+    });
   };
 
-  // Redaktəni ləğv et
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setCustomer('');
-    setProduct('');
-    setAmount('');
-    setStatus('Gözləyir');
+  // Redaktə düyməsinə basıldıqda
+  const handleEditClick = (order) => {
+    setEditingOrder(order);
+    setFormData({
+      orderCode: order.orderCode,
+      customerName: order.customerName,
+      phone: order.phone,
+      productName: order.productName,
+      madeOf: order.madeOf,
+      netPrice: order.netPrice,
+      profit: order.profit,
+      status: order.status
+    });
+    setShowModal(true);
   };
 
-  // Sil
+  // Sifarişi silmək
   const handleDelete = async (id) => {
-    if (window.confirm("Bu sifarişi silməyə əminsiniz?")) {
-      await deleteDoc(doc(db, 'orders', id));
-      fetchOrders();
+    if (window.confirm("Bu sifarişi silmək istədiyinizə əminsinizmi?")) {
+      try {
+        await deleteDoc(doc(db, 'orders', id));
+        setOrders(orders.filter(o => o.id !== id));
+      } catch (error) {
+        console.error("Silinərkən xəta: ", error);
+      }
     }
   };
+
+  // Statusu birbaşa cədvəldən dəyişmək
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, { status: newStatus });
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    } catch (error) {
+      console.error("Status yenilənərkən xəta: ", error);
+    }
+  };
+
+  // Hərfə görə axtarış filtri (Müştəri adı, telefon, məhsul və ya sifariş koduna görə)
+  const filteredOrders = orders.filter(order => 
+    order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.orderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.productName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '20px', color: '#1e293b' }}>
-        Sifarişlərin İdarə Olunması
-      </h2>
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Başlıq və Üst Panel */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-stone-800">Sifarişlər İdarəetməsi</h2>
+          <p className="text-sm text-stone-500">Müştəri sifarişləri, materiallar və gəlir izləməsi</p>
+        </div>
 
-      {/* Əlavə et / Edit Formu */}
-      <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '15px', fontSize: '18px' }}>
-          {editingId ? '✏️ Sifarişi Redaktə Et' : '➕ Yeni Sifariş Yarat'}
-        </h3>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-          <input 
-            type="text" 
-            placeholder="Müştəri adı" 
-            value={customer} 
-            onChange={e => setCustomer(e.target.value)}
-            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          />
-          <input 
-            type="text" 
-            placeholder="Məhsul adı" 
-            value={product} 
-            onChange={e => setProduct(e.target.value)}
-            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          />
-          <input 
-            type="number" 
-            placeholder="Məbləğ (AZN)" 
-            value={amount} 
-            onChange={e => setAmount(e.target.value)}
-            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          />
-          <select 
-            value={status} 
-            onChange={e => setStatus(e.target.value)}
-            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          >
-            <option value="Gözləyir">Gözləyir</option>
-            <option value="Hazırlanır">Hazırlanır</option>
-            <option value="Çatdırıldı">Çatdırıldı</option>
-            <option value="Ləğv edildi">Ləğv edildi</option>
-          </select>
+        <button 
+          onClick={() => setShowModal(true)}
+          className="px-4 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 transition text-sm font-medium shadow-sm flex items-center gap-2"
+        >
+          <span>+</span> Yeni Sifariş Əlavə Et
+        </button>
+      </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              type="submit" 
-              style={{ flex: 1, padding: '10px', background: editingId ? '#0284c7' : '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-            >
-              {editingId ? 'Yenilə' : 'Əlavə et'}
-            </button>
-            {editingId && (
-              <button 
-                type="button" 
-                onClick={handleCancelEdit}
-                style={{ padding: '10px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-              >
-                Ləğv et
-              </button>
-            )}
-          </div>
-        </form>
+      {/* Axtarış Sətri */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <input 
+            type="text"
+            placeholder="Hərfə görə axtar (Müştəri, telefon, məhsul, kod)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2.5 pl-10 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 text-stone-800 shadow-xs"
+          />
+          <svg className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
       </div>
 
       {/* Sifarişlər Cədvəli */}
-      {loading ? (
-        <p>Yüklənir...</p>
-      ) : orders.length === 0 ? (
-        <p style={{ color: '#64748b' }}>Hələ heç bir sifariş yoxdur.</p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', background: '#fff' }}>
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px' }}>Müştəri</th>
-                <th style={{ padding: '12px' }}>Məhsul</th>
-                <th style={{ padding: '12px' }}>Məbləğ</th>
-                <th style={{ padding: '12px' }}>Status</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>Əməliyyatlar</th>
+              <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 text-xs uppercase tracking-wider">
+                <th className="p-4">Sifariş Kodu</th>
+                <th className="p-4">Müştəri Adı</th>
+                <th className="p-4">Telefon</th>
+                <th className="p-4">Məhsul Adı</th>
+                <th className="p-4">Material</th>
+                <th className="p-4">Net Qiymət</th>
+                <th className="p-4">Gəlir</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Əməliyyatlar</th>
               </tr>
             </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '12px', fontWeight: '500' }}>{order.customer}</td>
-                  <td style={{ padding: '12px' }}>{order.product}</td>
-                  <td style={{ padding: '12px' }}>{order.amount} AZN</td>
-                  <td style={{ padding: '12px' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      background: order.status === 'Çatdırıldı' ? '#dcfce7' : order.status === 'Hazırlanır' ? '#fef3c7' : '#f1f5f9',
-                      color: order.status === 'Çatdırıldı' ? '#166534' : order.status === 'Hazırlanır' ? '#92400e' : '#475569'
-                    }}>
-                      {order.status || 'Gözləyir'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button 
-                      onClick={() => handleEdit(order)}
-                      style={{ padding: '6px 12px', marginRight: '6px', background: '#e0f2fe', color: '#0369a1', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(order.id)}
-                      style={{ padding: '6px 12px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Sil
-                    </button>
+            <tbody className="divide-y divide-stone-100 text-stone-700 text-sm">
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="p-8 text-center text-stone-400">
+                    Heç bir sifariş tapılmadı.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-stone-50/50 transition">
+                    <td className="p-4 font-medium text-stone-900">{order.orderCode}</td>
+                    <td className="p-4 font-medium text-stone-800">{order.customerName}</td>
+                    <td className="p-4 text-stone-500">{order.phone}</td>
+                    <td className="p-4">{order.productName}</td>
+                    <td className="p-4 text-stone-500 text-xs">{order.madeOf}</td>
+                    <td className="p-4 font-semibold">{order.netPrice} ₼</td>
+                    <td className="p-4 text-emerald-600 font-semibold">+{order.profit} ₼</td>
+                    <td className="p-4">
+                      <select 
+                        value={order.status}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        className={`text-xs px-2.5 py-1.5 rounded-lg font-medium border focus:outline-none cursor-pointer ${
+                          order.status === 'Tamamlandı' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          order.status === 'Hazırlanır' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          order.status === 'Ləğv edildi' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                          'bg-stone-100 text-stone-700 border-stone-200'
+                        }`}
+                      >
+                        <option value="Gözləmədə">Gözləmədə</option>
+                        <option value="Hazırlanır">Hazırlanır</option>
+                        <option value="Tamamlandı">Tamamlandı</option>
+                        <option value="Ləğv edildi">Ləğv edildi</option>
+                      </select>
+                    </td>
+                    <td className="p-4 text-right space-x-2">
+                      <button 
+                        onClick={() => handleEditClick(order)}
+                        className="px-2.5 py-1 text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg transition font-medium"
+                      >
+                        Düzəliş et
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(order.id)}
+                        className="px-2.5 py-1 text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition font-medium"
+                      >
+                        Sil
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Əlavə etmə / Düzəliş etmə Modalı (Popup) */}
+      {showModal && (
+        <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-stone-200">
+            <h3 className="text-lg font-bold text-stone-800 mb-4">
+              {editingOrder ? 'Sifarişə Düzəliş Et' : 'Yeni Sifariş Əlavə Et'}
+            </h3>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Sifariş Kodu</label>
+                  <input 
+                    type="text" 
+                    value={formData.orderCode}
+                    onChange={(e) => setFormData({...formData, orderCode: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm bg-stone-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Telefon Nömrəsi</label>
+                  <input 
+                    type="text" 
+                    placeholder="+994 50 XXXXXXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-600 mb-1">Müştərinin Adı və Soyadı</label>
+                <input 
+                  type="text" 
+                  placeholder="Məsələn: Leyla Məmmədova"
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({...formData, customerName: e.target.value})}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Məhsul Adı</label>
+                  <input 
+                    type="text" 
+                    placeholder="Məsələn: Bej odeyal"
+                    value={formData.productName}
+                    onChange={(e) => setFormData({...formData, productName: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Nədən hazırlanıb (Material)</label>
+                  <input 
+                    type="text" 
+                    value={formData.madeOf}
+                    onChange={(e) => setFormData({...formData, madeOf: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Net Qiymət (₼)</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.netPrice}
+                    onChange={(e) => setFormData({...formData, netPrice: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-600 mb-1">Gəlir (₼)</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.profit}
+                    onChange={(e) => setFormData({...formData, profit: e.target.value})}
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-600 mb-1">Status</label>
+                <select 
+                  value={formData.status}
+                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none bg-white"
+                >
+                  <option value="Gözləmədə">Gözləmədə</option>
+                  <option value="Hazırlanır">Hazırlanır</option>
+                  <option value="Tamamlandı">Tamamlandı</option>
+                  <option value="Ləğv edildi">Ləğv edildi</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-stone-100">
+                <button 
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 border border-stone-300 text-stone-700 rounded-xl text-sm font-medium hover:bg-stone-50 transition"
+                >
+                  Ləğv et
+                </button>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 transition"
+                >
+                  {loading ? 'Yadda saxlanılır...' : (editingOrder ? 'Yenilə' : 'Sifarişi Yarat')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

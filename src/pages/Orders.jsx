@@ -4,25 +4,33 @@ const Orders = () => {
   const [orders, setOrders] = useState(() => {
     const savedOrders = localStorage.getItem('allbaffy_orders');
     if (savedOrders) {
-      return JSON.parse(savedOrders);
+      try {
+        const parsed = JSON.parse(savedOrders);
+        if (parsed && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
+    // Sizin daxil etdiyiniz məlumatların silinməməsi üçün ilkin baza
     return [
       {
-        id: 'ALP-001',
+        id: 'ORD-001',
         orderDate: '2026-08-01',
         deliveryDate: '2026-08-08',
-        customerName: 'Aysel',
-        phone: '0501234567',
-        source: 'WhatsApp',
-        product: 'Uşaq Yorğanı',
+        customerName: 'Aygün Məmmədova',
+        phone: '+994 50 123 45 67',
+        source: 'Instagram',
+        product: 'Toxunma Odyal',
         category: 'Körpə Tekstili',
         advance: '10',
-        advanceMethod: 'Kart',
-        remaining: '20',
+        advanceMethod: 'Nağd',
+        remaining: '5',
         remainingMethod: 'Nağd',
-        deliveryAddress: 'Koroğlu m/s',
-        deliveryPrice: '5',
-        profit: '+18.00 AZN',
+        deliveryAddress: '',
+        deliveryPrice: '0',
+        profit: '15 AZN',
         status: 'Hazırlanır'
       }
     ];
@@ -38,7 +46,7 @@ const Orders = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
 
   const [newOrder, setNewOrder] = useState({
-    id: `ALP-00${orders.length + 1}`,
+    id: `ORD-00${orders.length + 1}`,
     orderDate: '',
     deliveryDate: '',
     customerName: '',
@@ -71,7 +79,7 @@ const Orders = () => {
     setOrders([newOrder, ...orders]);
     setIsAddModalOpen(false);
     setNewOrder({
-      id: `ALP-00${orders.length + 2}`,
+      id: `ORD-00${orders.length + 2}`,
       orderDate: '',
       deliveryDate: '',
       customerName: '',

@@ -10,7 +10,16 @@ export default function Inventory() {
   const [selectedSeries, setSelectedSeries] = useState('All');
   const [uploading, setUploading] = useState(false);
 
-  // Firebase Firestore-dan ipləri çəkmək, əgər alınmasa birbaşa yarnsData-nı göstərmək
+  // Yeni məhsul üçün form state-ləri
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newBrand, setNewBrand] = useState('Alize');
+  const [newSeries, setNewSeries] = useState('Puffy');
+  const [newCode, setNewCode] = useState('');
+  const [newColorName, setNewColorName] = useState('');
+  const [newStock, setNewStock] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
+
+  // Firebase Firestore-dan ipləri çəkmək
   const fetchYarns = async () => {
     setLoading(true);
     try {
@@ -23,7 +32,6 @@ export default function Inventory() {
       if (list.length > 0) {
         setYarns(list);
       } else {
-        // Bazalıq hələ boşdursa, birbaşa yerli məlumatı göstəririk
         setYarns(yarnsData);
       }
     } catch (error) {
@@ -38,25 +46,77 @@ export default function Inventory() {
     fetchYarns();
   }, []);
 
+  // Bütün yarnsData siyahısını Firebase-ə toplu yükləmək
+  const handleSeedDatabase = async () => {
+    if (!window.confirm("Bütün ip bazasını (şəkillər və kodlarla birlikdə) Firebase-ə yükləmək istəyirsiniz?")) return;
+    setUploading(true);
+    try {
+      for (const item of yarnsData) {
+        await setDoc(doc(db, 'yarns', item.id), {
+          brand: item.brand,
+          series: item.series,
+          code: item.code,
+          colorName: item.colorName,
+          stockCount: item.stockCount || 0,
+          imageUrl: item.imageUrl || ''
+        });
+      }
+      alert("Bütün iplər uğurla bazaya yükləndi!");
+      fetchYarns();
+    } catch (error) {
+      console.error(error);
+      alert("Yüklənərkən xəta baş verdi.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Tək bir yeni məhsul əlavə etmək
+  const handleAddSingleYarn = async (e) => {
+    e.preventDefault();
+    try {
+      const customId = `puffy_${newCode}_${Date.now()}`;
+      await setDoc(doc(db, 'yarns', customId), {
+        brand: newBrand,
+        series: newSeries,
+        code: newCode,
+        colorName: newColorName,
+        stockCount: Number(newStock) || 0,
+        imageUrl: newImageUrl
+      });
+
+      alert("Yeni ip uğurla əlavə olundu!");
+      setShowAddForm(false);
+      // Formanı təmizlə
+      setNewCode('');
+      setNewColorName('');
+      setNewStock('');
+      setNewImageUrl('');
+      fetchYarns();
+    } catch (error) {
+      console.error(error);
+      alert("Əlavə edilərkən xəta oldu.");
+    }
+  };
+
   // Stok miqdarını yeniləmək
   const handleEditStock = async (yarn) => {
     const currentStock = yarn.stockCount || 0;
     const input = window.prompt(`${yarn.brand} ${yarn.series} (${yarn.code}) üçün yeni stok miqdarını yazın:`, currentStock);
     
     if (input === null) return;
-    const newStock = parseInt(input, 10);
-    if (isNaN(newStock) || newStock < 0) return alert("Düzgün rəqəm yazın!");
+    const newStockVal = parseInt(input, 10);
+    if (isNaN(newStockVal) || newStockVal < 0) return alert("Düzgün rəqəm yazın!");
 
     try {
       const yarnRef = doc(db, 'yarns', yarn.id);
-      await updateDoc(yarnRef, { stockCount: newStock });
-      setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStock } : item));
+      await updateDoc(yarnRef, { stockCount: newStockVal });
+      setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStockVal } : item));
     } catch (error) {
-      // Əgər bazada sənəd hələ yoxdursa, yaradıb yeniləyirik
       try {
         const yarnRef = doc(db, 'yarns', yarn.id);
-        await setDoc(yarnRef, { ...yarn, stockCount: newStock });
-        setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStock } : item));
+        await setDoc(yarnRef, { ...yarn, stockCount: newStockVal });
+        setYarns(prev => prev.map(item => item.id === yarn.id ? { ...item, stockCount: newStockVal } : item));
       } catch (err) {
         alert("Xəta baş verdi.");
       }
@@ -77,24 +137,76 @@ export default function Inventory() {
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif', backgroundColor: '#FAF6F0', minHeight: '100vh' }}>
       
-      {/* Başlıq */}
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Başlıq və Düymələr */}
+      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <h1 style={{ color: '#4A3B32', margin: 0, fontSize: '24px' }}>İp Anbarı</h1>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <span style={{ backgroundColor: '#D9C3B0', padding: '6px 14px', borderRadius: '16px', color: '#3A2E2B', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            style={{ backgroundColor: '#5c4033', color: '#FFF', border: 'none', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            {showFormStatus => showAddForm ? "Bağla" : "+ Yeni İp Əlavə Et"}
+          </button>
+
+          {!loading && (
+            <button
+              onClick={handleSeedDatabase}
+              disabled={uploading}
+              style={{ backgroundColor: '#785A46', color: '#FFF', border: 'none', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              {uploading ? "Yüklənir..." : "Bütün Bazanı Yüklə / Yenilə"}
+            </button>
+          )}
+
+          <span style={{ backgroundColor: '#D9C3B0', padding: '8px 14px', borderRadius: '16px', color: '#3A2E2B', fontWeight: 'bold' }}>
             Cəmi Çeşid: {filteredYarns.length}
           </span>
         </div>
       </div>
 
+      {/* Yeni İp Əlavə Etmə Forması */}
+      {showAddForm && (
+        <form onSubmit={handleAddSingleYarn} style={{ backgroundColor: '#F5EBE1', padding: '20px', borderRadius: '8px', border: '1px solid #E0D3C1', marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#4A3B32', fontWeight: 'bold', fontSize: '13px' }}>Seriya:</label>
+            <select value={newSeries} onChange={(e) => setNewSeries(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0' }}>
+              <option value="Puffy">Alize Puffy</option>
+              <option value="Puffy Color">Alize Puffy Color</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#4A3B32', fontWeight: 'bold', fontSize: '13px' }}>Rəng Kodu:</label>
+            <input type="text" placeholder="Məs: 185" value={newCode} onChange={(e) => setNewCode(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#4A3B32', fontWeight: 'bold', fontSize: '13px' }}>Rəng Adı:</label>
+            <input type="text" placeholder="Məs: Çəhrayı" value={newColorName} onChange={(e) => setNewColorName(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#4A3B32', fontWeight: 'bold', fontSize: '13px' }}>İlkin Stok:</label>
+            <input type="number" placeholder="0" value={newStock} onChange={(e) => setNewStock(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#4A3B32', fontWeight: 'bold', fontSize: '13px' }}>Şəkil Linki (URL):</label>
+            <input type="text" placeholder="https://..." value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <button type="submit" style={{ backgroundColor: '#785A46', color: '#FFF', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+              Yadda Saxla
+            </button>
+          </div>
+        </form>
+      )}
+
       {/* Axtarış Və Filtr */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', backgroundColor: '#F5EBE1', padding: '16px', borderRadius: '8px', border: '1px solid #E0D3C1' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', backgroundColor: '#F5EBE1', padding: '16px', borderRadius: '8px', border: '1px solid #E0D3C1', flexWrap: 'wrap' }}>
         <input
           type="text"
           placeholder="Rəng kodu, rəng adı və ya ip adı ilə axtar..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ flex: 1, padding: '10px 14px', borderRadius: '6px', border: '1px solid #C4B2A0', fontSize: '14px', outline: 'none' }}
+          style={{ flex: 1, minWidth: '220px', padding: '10px 14px', borderRadius: '6px', border: '1px solid #C4B2A0', fontSize: '14px', outline: 'none' }}
         />
         <select
           value={selectedSeries}

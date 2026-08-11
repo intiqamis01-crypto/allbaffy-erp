@@ -10,8 +10,8 @@ const Orders = () => {
       source: 'WhatsApp',
       orderDate: '2026-08-01',
       deliveryDate: '2026-08-08',
-      daysCount: 3,
-      product: 'Uşaq Yorğanı',
+      daysCount: 7,
+      product: 'Odeyallar',
       category: 'Körpə Tekstili',
       yarnType: 'Alize Puffy',
       color: '183 – Çəhrayı',
@@ -33,31 +33,55 @@ const Orders = () => {
     { name: 'WhatsApp', icon: '💬' }
   ];
 
+  const productOptions = [
+    'Odeyallar', 
+    'Şərflər', 
+    'Hədiyyəlik gift boxlar', 
+    'Xəstəxana çıxışı pampers tortları', 
+    'Jaket', 
+    'Jilet', 
+    'Oyun matı'
+  ];
+
+  const yarnOptions = ['Alize Puffy', 'Alize Puffy Fine', 'Digər'];
+  const categoryOptions = ['Körpə Tekstili', 'Aksessuar', 'Hədiyyə', 'Geyim'];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
 
-  // Form state for adding/editing
   const [formData, setFormData] = useState({
-    id: 'ALP-002',
+    id: '',
     customerName: '',
     phone: '',
     source: 'WhatsApp',
     orderDate: new Date().toISOString().split('T')[0],
     deliveryDate: '',
-    daysCount: 3,
-    product: '',
-    category: '',
+    daysCount: 0,
+    product: 'Odeyallar',
+    category: 'Körpə Tekstili',
     yarnType: 'Alize Puffy',
     color: '',
-    knitType: '',
-    size: '',
+    knitType: 'Klassik Hörgü',
+    size: '90x90 cm',
     costPrice: '',
     salePrice: '',
     profit: '',
     status: 'Hazırlanır'
   });
+
+  const handleDateChange = (field, value) => {
+    const updatedForm = { ...formData, [field]: value };
+    if (updatedForm.orderDate && updatedForm.deliveryDate) {
+      const d1 = new Date(updatedForm.orderDate);
+      const d2 = new Date(updatedForm.deliveryDate);
+      const diffTime = d2 - d1;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      updatedForm.daysCount = diffDays >= 0 ? diffDays : 0;
+    }
+    setFormData(updatedForm);
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -79,6 +103,33 @@ const Orders = () => {
     }
   };
 
+  const handleOpenAddModal = () => {
+    const nextIdNum = orders.length + 1;
+    const generatedId = `ALP-${String(nextIdNum).padStart(3, '0')}`;
+    const today = new Date().toISOString().split('T')[0];
+    
+    setFormData({
+      id: generatedId,
+      customerName: '',
+      phone: '',
+      source: 'WhatsApp',
+      orderDate: today,
+      deliveryDate: today,
+      daysCount: 0,
+      product: 'Odeyallar',
+      category: 'Körpə Tekstili',
+      yarnType: 'Alize Puffy',
+      color: '',
+      knitType: 'Klassik Hörgü',
+      size: '90x90 cm',
+      costPrice: '',
+      salePrice: '',
+      profit: '',
+      status: 'Hazırlanır'
+    });
+    setIsAddModalOpen(true);
+  };
+
   const handleEditClick = (order) => {
     setCurrentOrder(order);
     setFormData(order);
@@ -89,25 +140,6 @@ const Orders = () => {
     e.preventDefault();
     setOrders([formData, ...orders]);
     setIsAddModalOpen(false);
-    setFormData({
-      id: `ALP-00${orders.length + 2}`,
-      customerName: '',
-      phone: '',
-      source: 'WhatsApp',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      daysCount: 3,
-      product: '',
-      category: '',
-      yarnType: 'Alize Puffy',
-      color: '',
-      knitType: '',
-      size: '',
-      costPrice: '',
-      salePrice: '',
-      profit: '',
-      status: 'Hazırlanır'
-    });
   };
 
   const handleSaveEdit = (e) => {
@@ -126,7 +158,7 @@ const Orders = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#3D2C22' }}>Sifarişlər</h1>
         <button 
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={handleOpenAddModal}
           style={{ backgroundColor: '#2e7d32', color: 'white', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}
         >
           + Yeni Sifariş
@@ -199,6 +231,7 @@ const Orders = () => {
                 </td>
                 <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                   <button 
+                    type="button"
                     onClick={() => handleEditClick(order)} 
                     title="Düzəliş et" 
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', marginRight: '10px', color: '#e65100', transform: 'scaleX(-1)', display: 'inline-block' }}
@@ -206,6 +239,7 @@ const Orders = () => {
                     ✏️
                   </button>
                   <button 
+                    type="button"
                     onClick={() => handleDelete(order.id)} 
                     title="Sil" 
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#212121' }}
@@ -219,14 +253,23 @@ const Orders = () => {
         </table>
       </div>
 
-      {/* Yeni Sifariş və ya Redaktə üçün Modal pəncərələrin sadələşdirilmiş idarəsi */}
       {(isAddModalOpen || isEditModalOpen) && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '12px', width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '12px', width: '550px', maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 style={{ marginBottom: '20px', color: '#3D2C22' }}>{isAddModalOpen ? 'Yeni Sifariş Əlavə Et' : 'Sifarişə Düzəliş Et'}</h2>
             <form onSubmit={isAddModalOpen ? handleSaveAdd : handleSaveEdit}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Müştəri Adı:</label>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Sifariş Kodu:</label>
+                <input 
+                  type="text" 
+                  value={formData.id} 
+                  onChange={(e) => setFormData({...formData, id: e.target.value})}
+                  required 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Müştəri Adı:</label>
                 <input 
                   type="text" 
                   value={formData.customerName} 
@@ -235,8 +278,8 @@ const Orders = () => {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
               </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Telefon:</label>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Telefon:</label>
                 <input 
                   type="text" 
                   value={formData.phone} 
@@ -245,30 +288,130 @@ const Orders = () => {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
               </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Məhsul Adı:</label>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Mənbə:</label>
+                <select 
+                  value={formData.source} 
+                  onChange={(e) => setFormData({...formData, source: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                >
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Instagram">Instagram</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Sifariş Tarixi:</label>
                 <input 
-                  type="text" 
-                  value={formData.product} 
-                  onChange={(e) => setFormData({...formData, product: e.target.value})}
+                  type="date" 
+                  value={formData.orderDate} 
+                  onChange={(e) => handleDateChange('orderDate', e.target.value)}
                   required 
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
               </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Hörgü / Ölçü:</label>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Təhvil Tarixi:</label>
+                <input 
+                  type="date" 
+                  value={formData.deliveryDate} 
+                  onChange={(e) => handleDateChange('deliveryDate', e.target.value)}
+                  required 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Məhsul Adı:</label>
+                <select 
+                  value={formData.product} 
+                  onChange={(e) => setFormData({...formData, product: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                >
+                  {productOptions.map((prod, idx) => (
+                    <option key={idx} value={prod}>{prod}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Kateqoriya:</label>
+                <select 
+                  value={formData.category} 
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                >
+                  {categoryOptions.map((cat, idx) => (
+                    <option key={idx} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>İpin Növü:</label>
+                <select 
+                  value={formData.yarnType} 
+                  onChange={(e) => setFormData({...formData, yarnType: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                >
+                  {yarnOptions.map((yarn, idx) => (
+                    <option key={idx} value={yarn}>{yarn}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Rəng (Kod və Ad):</label>
                 <input 
                   type="text" 
-                  placeholder="Məs: Klassik Hörgü / 90x90 cm" 
+                  placeholder="Məs: 183 – Çəhrayı" 
+                  value={formData.color} 
+                  onChange={(e) => setFormData({...formData, color: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Hörgü Növü:</label>
+                <input 
+                  type="text" 
+                  placeholder="Məs: Klassik Hörgü" 
                   value={formData.knitType} 
                   onChange={(e) => setFormData({...formData, knitType: e.target.value})}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', marginBottom: '8px' }}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Ölçü:</label>
                 <input 
                   type="text" 
-                  placeholder="Ölçü (Məs: 90x90 cm)" 
+                  placeholder="Məs: 90x90 cm" 
                   value={formData.size} 
                   onChange={(e) => setFormData({...formData, size: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Maya Dəyəri:</label>
+                <input 
+                  type="text" 
+                  placeholder="Məs: 12.00 AZN" 
+                  value={formData.costPrice} 
+                  onChange={(e) => setFormData({...formData, costPrice: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Satış Qiyməti:</label>
+                <input 
+                  type="text" 
+                  placeholder="Məs: 30.00 AZN" 
+                  value={formData.salePrice} 
+                  onChange={(e) => setFormData({...formData, salePrice: e.target.value})}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
+                />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Qazanc:</label>
+                <input 
+                  type="text" 
+                  placeholder="Məs: +18.00 AZN" 
+                  value={formData.profit} 
+                  onChange={(e) => setFormData({...formData, profit: e.target.value})}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
               </div>

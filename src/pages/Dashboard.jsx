@@ -1,6 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase'; // Firebase bağlantısının olduğu fayl (lazım gələrsə yolu yoxla)
 
 export default function Dashboard() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Firestore-dan sifarişləri avtomatik çəkmək
+  useEffect(() => {
+    try {
+      const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(5));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setOrders(ordersData);
+        setLoading(false);
+      }, (error) => {
+        console.error("Məlumat çəkilərkən xəta baş verdi: ", error);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <div style={{ padding: '24px', backgroundColor: '#FDFBF7', minHeight: '100vh', fontFamily: 'sans-serif' }}>
       {/* Başlıq */}
@@ -15,7 +43,7 @@ export default function Dashboard() {
         {/* Sifarişlər */}
         <div style={{ backgroundColor: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2D7C7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#7A624E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>SİFARİŞLƏR</span>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>1 ədəd</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>{orders.length} ədəd</div>
         </div>
 
         {/* Satış */}
@@ -89,7 +117,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Son Sifarişlər Cədvəli (Sifarişlər səhifəsinin strukturu ilə) */}
+      {/* Son Sifarişlər Cədvəli (Bazadan avtomatik oxuyan hissə) */}
       <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2D7C7', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2D7C7', backgroundColor: '#FDFBF7' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C1D11', margin: 0 }}>Son Sifarişlər</h3>
@@ -115,35 +143,47 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr style={{ borderBottom: '1px solid #F2EFE9' }}>
-                <td style={{ padding: '14px 16px', color: '#4A5568', fontWeight: 'bold' }}>ALP-001</td>
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#2C1D11' }}>Leyla</div>
-                  <div style={{ fontSize: '11px', color: '#7A624E' }}>0559876543</div>
-                </td>
-                <td style={{ padding: '14px 16px', color: '#2C1D11' }}>Instagram</td>
-                <td style={{ padding: '14px 16px', fontSize: '12px', color: '#4A5568' }}>
-                  <div>04.08.26</div>
-                  <div style={{ color: '#7A624E', fontSize: '11px' }}>07.08.26</div>
-                </td>
-                <td style={{ padding: '14px 16px', color: '#2C1D11' }}>Uşaq Yorğanı</td>
-                <td style={{ padding: '14px 16px', color: '#4A5568' }}>Alize Puffy</td>
-                <td style={{ padding: '14px 16px', color: '#4A5568' }}>55 - Ağ</td>
-                <td style={{ padding: '14px 16px', color: '#4A5568' }}>90x90 sm</td>
-                <td style={{ padding: '14px 16px', color: '#4A5568' }}>13.50 AZN</td>
-                <td style={{ padding: '14px 16px', fontWeight: 'bold', color: '#2C1D11' }}>80.00 AZN</td>
-                <td style={{ padding: '14px 16px', fontWeight: 'bold', color: '#15803d' }}>+66.50 AZN</td>
-                <td style={{ padding: '14px 16px' }}>
-                  <span style={{ backgroundColor: '#FFFDF0', color: '#975A16', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', border: '1px solid #FEE88D' }}>
-                    Hazırlanır
-                  </span>
-                </td>
-                <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                  <button style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2D7C7', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#2C1D11' }}>
-                    ✎
-                  </button>
-                </td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan="13" style={{ padding: '20px', textAlign: 'center', color: '#7A624E' }}>Yüklənir...</td>
+                </tr>
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan="13" style={{ padding: '20px', textAlign: 'center', color: '#7A624E' }}>Hələ heç bir sifariş yoxdur.</td>
+                </tr>
+              ) : (
+                orders.map((order) => (
+                  <tr key={order.id} style={{ borderBottom: '1px solid #F2EFE9' }}>
+                    <td style={{ padding: '14px 16px', color: '#4A5568', fontWeight: 'bold' }}>{order.code || order.kod || '-'}</td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#2C1D11' }}>{order.customer || order.musteri || '-'}</div>
+                      <div style={{ fontSize: '11px', color: '#7A624E' }}>{order.phone || order.tel || ''}</div>
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#2C1D11' }}>{order.source || order.menbe || '-'}</td>
+                    <td style={{ padding: '14px 16px', fontSize: '12px', color: '#4A5568' }}>
+                      <div>{order.orderDate || order. tarix || '-'}</div>
+                      <div style={{ color: '#7A624E', fontSize: '11px' }}>{order.deliveryDate || ''}</div>
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#2C1D11' }}>{order.product || order.mehsul || '-'}</td>
+                    <td style={{ padding: '14px 16px', color: '#4A5568' }}>{order.yarn || order.ip || '-'}</td>
+                    <td style={{ padding: '14px 16px', color: '#4A5568' }}>{order.color || order.reng || '-'}</td>
+                    <td style={{ padding: '14px 16px', color: '#4A5568' }}>{order.size || order.olcu || '-'}</td>
+                    <td style={{ padding: '14px 16px', color: '#4A5568' }}>{order.cost || order.maya || '0'} AZN</td>
+                    <td style={{ padding: '14px 16px', fontWeight: 'bold', color: '#2C1D11' }}>{order.price || order.satis || '0'} AZN</td>
+                    <td style={{ padding: '14px 16px', fontWeight: 'bold', color: '#15803d' }}>{order.profit || order.qazanc || '0'} AZN</td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <span style={{ backgroundColor: '#FFFDF0', color: '#975A16', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', border: '1px solid #FEE88D' }}>
+                        {order.status || 'Hazırlanır'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                      <button style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2D7C7', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#2C1D11' }}>
+                        ✎
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

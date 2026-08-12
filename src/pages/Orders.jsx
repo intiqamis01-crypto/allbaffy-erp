@@ -185,7 +185,7 @@ const Orders = () => {
   });
 
   return (
-    <div style={{ display: 'flex', fontFamily: 'sans-serif', backgroundColor: '#fdfbf7', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', fontFamily: 'sans-serif', backgroundColor: '#fdfbf7', minHeight: '100vh', width: '100%' }}>
       {/* Sidebar */}
       <div style={{ width: '240px', backgroundColor: '#f4ece1', borderRight: '1px solid #e6dcd0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '20px', borderBottom: '1px solid #e6dcd0' }}>

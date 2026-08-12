@@ -67,7 +67,6 @@ const Orders = () => {
     }
   ]);
 
-  // Əlavə açılan siyahılar üçün state-lər
   const [productsList, setProductsList] = useState(['Uşaq Yorğanı', 'Şərf', 'Gift Box', 'Jaket', 'Jilet', 'Oyun Matı']);
   const [yarnsList, setYarnsList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Color']);
   const [colorsList, setColorsList] = useState(['55 - Ağ', '60 - Krem', '15 - Ətrəngi', '310 - Pudra']);
@@ -77,10 +76,10 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Modallar üçün state-lər
-  const [activeDropdown, setActiveDropdown] = useState(null); // 'source', 'product', 'yarn', 'color', 'pattern', 'size'
-  const [manageModalType, setManageModalType] = useState(null); // 'source', 'product', 'yarn', 'color', 'pattern', 'size'
+  const [activeDropdown, setActiveDropdown] = useState(null); 
+  const [manageModalType, setManageModalType] = useState(null); 
   const [newItemText, setNewItemText] = useState('');
+  const [editingItemOriginal, setEditingItemOriginal] = useState(null);
 
   const [editingId, setEditingId] = useState(null);
 
@@ -154,50 +153,91 @@ const Orders = () => {
     setIsModalOpen(true);
   };
 
-  const handleAddNewItem = (e) => {
+  const handleSaveItem = (e) => {
     e.preventDefault();
     const val = newItemText.trim();
     if (!val) return;
 
     if (manageModalType === 'source') {
-      if (!sources.some(s => s.name === val)) {
-        setSources([...sources, { 
-          name: val, 
-          icon: (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          ) 
-        }]);
-        setFormData(prev => ({...prev, source: val}));
+      if (editingItemOriginal) {
+        setSources(sources.map(s => s.name === editingItemOriginal ? { ...s, name: val } : s));
+        if (formData.source === editingItemOriginal) {
+          setFormData(prev => ({...prev, source: val}));
+        }
+      } else {
+        if (!sources.some(s => s.name === val)) {
+          setSources([...sources, { 
+            name: val, 
+            icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            ) 
+          }]);
+        }
       }
     } else if (manageModalType === 'product') {
-      if (!productsList.includes(val)) {
-        setProductsList([...productsList, val]);
-        setFormData(prev => ({...prev, product: val}));
+      if (editingItemOriginal) {
+        setProductsList(productsList.map(i => i === editingItemOriginal ? val : i));
+        if (formData.product === editingItemOriginal) {
+          setFormData(prev => ({...prev, product: val}));
+        }
+      } else {
+        if (!productsList.includes(val)) {
+          setProductsList([...productsList, val]);
+        }
       }
     } else if (manageModalType === 'yarn') {
-      if (!yarnsList.includes(val)) {
-        setYarnsList([...yarnsList, val]);
-        setFormData(prev => ({...prev, yarn: val}));
+      if (editingItemOriginal) {
+        setYarnsList(yarnsList.map(i => i === editingItemOriginal ? val : i));
+        if (formData.yarn === editingItemOriginal) {
+          setFormData(prev => ({...prev, yarn: val}));
+        }
+      } else {
+        if (!yarnsList.includes(val)) {
+          setYarnsList([...yarnsList, val]);
+        }
       }
     } else if (manageModalType === 'color') {
-      if (!colorsList.includes(val)) {
-        setColorsList([...colorsList, val]);
-        setFormData(prev => ({...prev, color: val}));
+      if (editingItemOriginal) {
+        setColorsList(colorsList.map(i => i === editingItemOriginal ? val : i));
+        if (formData.color === editingItemOriginal) {
+          setFormData(prev => ({...prev, color: val}));
+        }
+      } else {
+        if (!colorsList.includes(val)) {
+          setColorsList([...colorsList, val]);
+        }
       }
     } else if (manageModalType === 'pattern') {
-      if (!patternsList.includes(val)) {
-        setPatternsList([...patternsList, val]);
-        setFormData(prev => ({...prev, pattern: val}));
+      if (editingItemOriginal) {
+        setPatternsList(patternsList.map(i => i === editingItemOriginal ? val : i));
+        if (formData.pattern === editingItemOriginal) {
+          setFormData(prev => ({...prev, pattern: val}));
+        }
+      } else {
+        if (!patternsList.includes(val)) {
+          setPatternsList([...patternsList, val]);
+        }
       }
     } else if (manageModalType === 'size') {
-      if (!sizesList.includes(val)) {
-        setSizesList([...sizesList, val]);
-        setFormData(prev => ({...prev, size: val}));
+      if (editingItemOriginal) {
+        setSizesList(sizesList.map(i => i === editingItemOriginal ? val : i));
+        if (formData.size === editingItemOriginal) {
+          setFormData(prev => ({...prev, size: val}));
+        }
+      } else {
+        if (!sizesList.includes(val)) {
+          setSizesList([...sizesList, val]);
+        }
       }
     }
 
     setNewItemText('');
-    setManageModalType(null);
+    setEditingItemOriginal(null);
+  };
+
+  const handleEditItemClick = (itemVal) => {
+    setNewItemText(itemVal);
+    setEditingItemOriginal(itemVal);
   };
 
   const handleDeleteItem = (type, itemVal) => {
@@ -237,6 +277,10 @@ const Orders = () => {
       if (formData.size === itemVal) {
         setFormData(prev => ({...prev, size: filtered[0] || ''}));
       }
+    }
+    if (editingItemOriginal === itemVal) {
+      setNewItemText('');
+      setEditingItemOriginal(null);
     }
   };
 
@@ -330,7 +374,6 @@ const Orders = () => {
 
   const currentSelectedSource = sources.find(s => s.name === formData.source);
 
-  // Dropdown render edən köməkçi funksiya
   const renderCustomSelect = (labelTitle, typeKey, currentValue, listArray, isSourceType = false) => {
     const isOpen = activeDropdown === typeKey;
 
@@ -386,6 +429,8 @@ const Orders = () => {
             <div 
               onClick={() => {
                 setActiveDropdown(null);
+                setNewItemText('');
+                setEditingItemOriginal(null);
                 setManageModalType(typeKey);
               }}
               style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: '#5a3d28', backgroundColor: '#faf7f2' }}
@@ -491,7 +536,6 @@ const Orders = () => {
             <h3 style={{ marginTop: 0, color: '#333' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
-              {/* 1-ci sətir: Müştəri Adı, Telefon Nömrəsi, Mənbə */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1.2 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
@@ -505,7 +549,6 @@ const Orders = () => {
                 {renderCustomSelect('Mənbə', 'source', formData.source, sources, true)}
               </div>
 
-              {/* 2-ci sətir: Sifariş Tarixi və Təhvil Tarixi */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
@@ -517,25 +560,19 @@ const Orders = () => {
                 </div>
               </div>
 
-              {/* 3-cü və 4-cü sətrlər üçün ümumi açıq krem ton background konteyneri */}
               <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                
-                {/* 3-cü sətir: Məhsul, İp, Rəng */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {renderCustomSelect('Məhsul', 'product', formData.product, productsList)}
                   {renderCustomSelect('İp', 'yarn', formData.yarn, yarnsList)}
                   {renderCustomSelect('Rəng', 'color', formData.color, colorsList)}
                 </div>
 
-                {/* 4-cü sətir: Hörgü, Ölçü */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {renderCustomSelect('Hörgü', 'pattern', formData.pattern, patternsList)}
                   {renderCustomSelect('Ölçü', 'size', formData.size, sizesList)}
                 </div>
-
               </div>
 
-              {/* 5-ci sətir: Maya Dəyəri və Satış Qiyməti */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</label>
@@ -556,10 +593,9 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Ümumi Element İdarəetmə Modalı (Əlavə et / Sil) */}
       {manageModalType && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '350px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '380px', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ marginTop: 0, color: '#333', fontSize: '18px', textTransform: 'capitalize' }}>
               {manageModalType === 'source' ? 'Mənbələri' :
                manageModalType === 'product' ? 'Məhsulları' :
@@ -568,19 +604,21 @@ const Orders = () => {
                manageModalType === 'pattern' ? 'Hörgü növlərini' : 'Ölçüləri'} İdarə Et
             </h3>
             
-            <form onSubmit={handleAddNewItem} style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
+            <form onSubmit={handleSaveItem} style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
               <input 
                 type="text" 
-                placeholder="Yeni dəyər daxil et..." 
+                placeholder={editingItemOriginal ? "Seçimi yenilə..." : "Yeni dəyər daxil et..."} 
                 value={newItemText} 
                 onChange={(e) => setNewItemText(e.target.value)} 
                 required
                 style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} 
               />
-              <button type="submit" style={{ padding: '8px 12px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Əlavə et</button>
+              <button type="submit" style={{ padding: '8px 12px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                {editingItemOriginal ? 'Yenilə' : 'Əlavə et'}
+              </button>
             </form>
 
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+            <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
               {manageModalType === 'source' ? (
                 sources.map(src => (
                   <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
@@ -588,7 +626,10 @@ const Orders = () => {
                       {src.icon}
                       <span>{src.name}</span>
                     </div>
-                    <span onClick={() => handleDeleteItem('source', src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <span onClick={() => handleEditItemClick(src.name)} style={{ transform: 'scaleX(-1)', cursor: 'pointer', fontSize: '14px', color: '#555' }} title="Redaktə et">✎</span>
+                      <span onClick={() => handleDeleteItem('source', src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -600,7 +641,10 @@ const Orders = () => {
                 ).map(item => (
                   <div key={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
                     <span>{item}</span>
-                    <span onClick={() => handleDeleteItem(manageModalType, item)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <span onClick={() => handleEditItemClick(item)} style={{ transform: 'scaleX(-1)', cursor: 'pointer', fontSize: '14px', color: '#555' }} title="Redaktə et">✎</span>
+                      <span onClick={() => handleDeleteItem(manageModalType, item)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                    </div>
                   </div>
                 ))
               )}

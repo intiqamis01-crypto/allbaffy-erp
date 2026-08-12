@@ -22,8 +22,21 @@ const Orders = () => {
     }
   ]);
 
+  const [sources, setSources] = useState([
+    'WhatsApp',
+    'Instagram',
+    'Facebook',
+    'Tiktok',
+    'Sayt',
+    'Tövsiyyə',
+    'Mağaza',
+    'Digər'
+  ]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
+  const [newSourceText, setNewSourceText] = useState('');
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -72,7 +85,7 @@ const Orders = () => {
       size: '',
       costPrice: '',
       sellingPrice: '',
-      source: 'Instagram'
+      source: sources[0] || 'Instagram'
     });
     setIsModalOpen(true);
   };
@@ -94,6 +107,34 @@ const Orders = () => {
       source: order.source || 'Instagram'
     });
     setIsModalOpen(true);
+  };
+
+  const handleSourceChange = (e) => {
+    const value = e.target.value;
+    if (value === 'ADD_NEW') {
+      setIsSourceModalOpen(true);
+    } else {
+      setFormData({...formData, source: value});
+    }
+  };
+
+  const handleAddSource = (e) => {
+    e.preventDefault();
+    if (newSourceText.trim() && !sources.includes(newSourceText.trim())) {
+      const updatedSources = [...sources, newSourceText.trim()];
+      setSources(updatedSources);
+      setFormData({...formData, source: newSourceText.trim()});
+      setNewSourceText('');
+      setIsSourceModalOpen(false);
+    }
+  };
+
+  const handleDeleteSource = (sourceToDelete) => {
+    const filtered = sources.filter(s => s !== sourceToDelete);
+    setSources(filtered);
+    if (formData.source === sourceToDelete) {
+      setFormData({...formData, source: filtered[0] || ''});
+    }
   };
 
   const calculateDays = (start, end) => {
@@ -279,16 +320,11 @@ const Orders = () => {
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
-                <select value={formData.source} onChange={(e) => setFormData({...formData, source: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }}>
-                  <option value="WhatsApp">WhatsApp</option>
-                  <option value="Instagram">Instagram</option>
-                  <option value="Facebook">Facebook</option>
-                  <option value="Tiktok">Tiktok</option>
-                  <option value="Sayt">Sayt</option>
-                  <option value="Tövsiyyə">Tövsiyyə</option>
-                  <option value="Mağaza">Mağaza</option>
-                  <option value="Digər">Digər</option>
-                  <option value="Əlavə et / Düzəliş et">Əlavə et / Düzəliş et</option>
+                <select value={formData.source} onChange={handleSourceChange} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }}>
+                  {sources.map(src => (
+                    <option key={src} value={src}>{src}</option>
+                  ))}
+                  <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#5a3d28' }}>+ Əlavə et / Düzəliş et</option>
                 </select>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -340,6 +376,40 @@ const Orders = () => {
                 <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Mənbə Əlavə et / Düzəliş et Modalı */}
+      {isSourceModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '350px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ marginTop: 0, color: '#333', fontSize: '18px' }}>Mənbələri İdarə Et</h3>
+            
+            <form onSubmit={handleAddSource} style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
+              <input 
+                type="text" 
+                placeholder="Yeni mənbə adı..." 
+                value={newSourceText} 
+                onChange={(e) => setNewSourceText(e.target.value)} 
+                required
+                style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} 
+              />
+              <button type="submit" style={{ padding: '8px 12px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Əlavə et</button>
+            </form>
+
+            <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+              {sources.map(src => (
+                <div key={src} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
+                  <span>{src}</span>
+                  <span onClick={() => handleDeleteSource(src)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+              <button type="button" onClick={() => setIsSourceModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Bağla</button>
+            </div>
           </div>
         </div>
       )}

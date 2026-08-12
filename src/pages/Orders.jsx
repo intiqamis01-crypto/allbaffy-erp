@@ -74,19 +74,19 @@ const Orders = () => {
       <div style={{ overflowX: 'auto', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#fff', borderBottom: '2px solid #eee', color: '#555' }}>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>KOD</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>MÜŞTƏRİ / TEL</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Tarix (Sifariş / Təhvil)</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>MƏHSUL</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>İP</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>RƏNG</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>HÖRGÜ / ÖLÇÜ</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Maya Dəyəri</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Satış Qiyməti</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>QAZANC</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>STATUS</th>
-              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>ƏMƏLİYYAT</th>
+            <tr style={{ backgroundColor: '#fff', borderBottom: '2px solid #eee' }}>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>KOD</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>MÜŞTƏRİ / TEL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>Tarix (Sifariş / Təhvil)</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>MƏHSUL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>İP</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>RƏNG</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>HÖRGÜ / ÖLÇÜ</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>Maya Dəyəri</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>Satış Qiyməti</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>QAZANC</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>STATUS</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#5a3d28' }}>ƏMƏLİYYAT</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +94,7 @@ const Orders = () => {
               <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
                 <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
+                <td style={{ padding: '12px', textAlign: 'center', lineHeight: '1.4' }}>
                   <div>{formatDate(order.orderDate)}</div>
                   <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
                 </td>

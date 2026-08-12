@@ -130,8 +130,9 @@ const Orders = () => {
       sellingPrice: order.sellingPrice ? parseFloat(order.sellingPrice) : '',
       source: order.source || 'WhatsApp',
       hasDelivery: order.hasDelivery || false,
-      deliveryAddress: order.deliveryAddress || '',
-      deliveryPrice: order.deliveryPrice || ''
+deliveryAddress: order.deliveryAddress || '',
+deliveryTime: order.deliveryTime || '',
+deliveryPrice: order.deliveryPrice || ''
     });
     setTempMaterialName('');
     setTempMaterialPrice('');

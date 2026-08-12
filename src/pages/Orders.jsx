@@ -14,9 +14,13 @@ const Orders = () => {
       color: '55 - Ağ',
       pattern: 'Klassik Hörgü',
       size: '90x90 sm',
-      costPrice: '35.00 AZN',
+      materials: [
+        { name: '3 yumaq ip', price: 12.00 },
+        { name: 'Atlas lent', price: 1.50 }
+      ],
+      costPrice: '13.50 AZN',
       sellingPrice: '80.00 AZN',
-      profit: '+45.00 AZN',
+      profit: '+66.50 AZN',
       source: 'Instagram',
       status: 'Hazırlanır'
     }
@@ -93,10 +97,13 @@ const Orders = () => {
     color: '55 - Ağ',
     pattern: 'Klassik Hörgü',
     size: '90x90 sm',
-    costPrice: '',
+    materials: [],
     sellingPrice: '',
     source: 'Instagram'
   });
+
+  const [tempMaterialName, setTempMaterialName] = useState('');
+  const [tempMaterialPrice, setTempMaterialPrice] = useState('');
 
   const statusOptions = {
     'Hazırlanır': { bg: '#fff3cd', color: '#856404' },
@@ -127,10 +134,12 @@ const Orders = () => {
       color: colorsList[0] || '',
       pattern: patternsList[0] || '',
       size: sizesList[0] || '',
-      costPrice: '',
+      materials: [],
       sellingPrice: '',
       source: sources[0] ? sources[0].name : 'Instagram'
     });
+    setTempMaterialName('');
+    setTempMaterialPrice('');
     setIsModalOpen(true);
   };
 
@@ -146,11 +155,31 @@ const Orders = () => {
       color: order.color,
       pattern: order.pattern,
       size: order.size,
-      costPrice: parseFloat(order.costPrice) || '',
+      materials: order.materials ? [...order.materials] : [],
       sellingPrice: parseFloat(order.sellingPrice) || '',
       source: order.source || 'Instagram'
     });
+    setTempMaterialName('');
+    setTempMaterialPrice('');
     setIsModalOpen(true);
+  };
+
+  const handleAddMaterial = () => {
+    if (!tempMaterialName.trim() || !tempMaterialPrice) return;
+    const priceVal = parseFloat(tempMaterialPrice) || 0;
+    setFormData(prev => ({
+      ...prev,
+      materials: [...prev.materials, { name: tempMaterialName.trim(), price: priceVal }]
+    }));
+    setTempMaterialName('');
+    setTempMaterialPrice('');
+  };
+
+  const handleRemoveMaterial = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      materials: prev.materials.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSaveItem = (e) => {
@@ -306,9 +335,9 @@ const Orders = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const cost = parseFloat(formData.costPrice) || 0;
+    const totalCost = formData.materials.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
     const selling = parseFloat(formData.sellingPrice) || 0;
-    const profitVal = (selling - cost).toFixed(2);
+    const profitVal = (selling - totalCost).toFixed(2);
 
     if (editingId !== null) {
       setOrders(orders.map(o => {
@@ -324,7 +353,8 @@ const Orders = () => {
             color: formData.color,
             pattern: formData.pattern,
             size: formData.size,
-            costPrice: `${cost.toFixed(2)} AZN`,
+            materials: [...formData.materials],
+            costPrice: `${totalCost.toFixed(2)} AZN`,
             sellingPrice: `${selling.toFixed(2)} AZN`,
             profit: `${profitVal >= 0 ? '+' : ''}${profitVal} AZN`,
             source: formData.source
@@ -348,7 +378,8 @@ const Orders = () => {
         color: formData.color,
         pattern: formData.pattern,
         size: formData.size,
-        costPrice: `${cost.toFixed(2)} AZN`,
+        materials: [...formData.materials],
+        costPrice: `${totalCost.toFixed(2)} AZN`,
         sellingPrice: `${selling.toFixed(2)} AZN`,
         profit: `${profitVal >= 0 ? '+' : ''}${profitVal} AZN`,
         source: formData.source,
@@ -577,10 +608,56 @@ const Orders = () => {
                 </div>
               </div>
 
+              {/* İstifadə Edilən Materiallar Bölməsi */}
+              <div style={{ backgroundColor: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #e0dbd1', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>İstifadə Edilən Materiallar (İp, Etiket, Paket, Lent və s.)</label>
+                
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Məs: 1 ədəd paket və ya etiket" 
+                    value={tempMaterialName} 
+                    onChange={(e) => setTempMaterialName(e.target.value)} 
+                    style={{ flex: 1.5, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px' }} 
+                  />
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    placeholder="Qiymət (AZN)" 
+                    value={tempMaterialPrice} 
+                    onChange={(e) => setTempMaterialPrice(e.target.value)} 
+                    style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px' }} 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={handleAddMaterial} 
+                    style={{ padding: '8px 15px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', whiteSpace: 'nowrap' }}
+                  >
+                    + Əlavə et
+                  </button>
+                </div>
+
+                {formData.materials.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                    {formData.materials.map((mat, index) => (
+                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', backgroundColor: '#fcfbfa', borderRadius: '4px', border: '1px solid #eee', fontSize: '12px' }}>
+                        <span style={{ fontWeight: '500' }}>{mat.name} – <strong>{mat.price.toFixed(2)} AZN</strong></span>
+                        <span onClick={() => handleRemoveMaterial(index)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '12px' }}>Sil</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</label>
-                  <input type="number" step="0.01" placeholder="35.00" required value={formData.costPrice} onChange={(e) => setFormData({...formData, costPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri (Avtomatik Hesablanır)</label>
+                  <input 
+                    type="text" 
+                    disabled 
+                    value={`${formData.materials.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0).toFixed(2)} AZN`} 
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f4f0eb', boxSizing: 'border-box', marginTop: '4px', fontWeight: 'bold', color: '#333' }} 
+                  />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</label>
@@ -666,4 +743,4 @@ const Orders = () => {
 
 Orders.propTypes = {};
 
-export default Orders;
+exports default Orders;

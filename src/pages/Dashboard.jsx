@@ -71,7 +71,7 @@ export default function Dashboard() {
         
         {/* Təcili Sifarişlər Qutusu */}
         <div style={{ backgroundColor: '#FFF5F5', border: '1px solid #F5C6CB', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <span style={{ fontSize: '18px', lineHeight: '1.2' }}>⏰</span>
+          <span style={{ fontSize: '18px', lineHeight: '1.2' }}>🕒</span>
           <div>
             <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#C53030' }}>Təhvilinə 1 Gün Qalan və ya Keçən Sifarişlər (0)</div>
             <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>Təhvil tarixi yaxınlaşan təcili sifariş yoxdur.</div>

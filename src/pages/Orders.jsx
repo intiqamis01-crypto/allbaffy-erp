@@ -23,19 +23,60 @@ const Orders = () => {
   ]);
 
   const [sources, setSources] = useState([
-    { name: 'WhatsApp', icon: '💬' },
-    { name: 'Instagram', icon: '📷' },
-    { name: 'Facebook', icon: '👥' },
-    { name: 'Tiktok', icon: '🎵' },
-    { name: 'Sayt', icon: '🌐' },
-    { name: 'Tövsiyyə', icon: '🤝' },
-    { name: 'Mağaza', icon: '🏪' },
-    { name: 'Digər', icon: '📌' }
+    { 
+      name: 'WhatsApp', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      ) 
+    },
+    { 
+      name: 'Instagram', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      ) 
+    },
+    { 
+      name: 'Facebook', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      ) 
+    },
+    { 
+      name: 'Tiktok', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+      ) 
+    },
+    { 
+      name: 'Sayt', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      ) 
+    },
+    { 
+      name: 'Tövsiyyə', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      ) 
+    },
+    { 
+      name: 'Mağaza', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      ) 
+    },
+    { 
+      name: 'Digər', 
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      ) 
+    }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
+  const [isCustomDropdownOpen, setIsCustomDropdownOpen] = useState(false);
   const [newSourceText, setNewSourceText] = useState('');
   const [editingId, setEditingId] = useState(null);
 
@@ -109,19 +150,15 @@ const Orders = () => {
     setIsModalOpen(true);
   };
 
-  const handleSourceChange = (e) => {
-    const value = e.target.value;
-    if (value === 'ADD_NEW') {
-      setIsSourceModalOpen(true);
-    } else {
-      setFormData({...formData, source: value});
-    }
-  };
-
   const handleAddSource = (e) => {
     e.preventDefault();
     if (newSourceText.trim() && !sources.some(s => s.name === newSourceText.trim())) {
-      const updatedSources = [...sources, { name: newSourceText.trim(), icon: '📌' }];
+      const updatedSources = [...sources, { 
+        name: newSourceText.trim(), 
+        icon: (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        ) 
+      }];
       setSources(updatedSources);
       setFormData({...formData, source: newSourceText.trim()});
       setNewSourceText('');
@@ -225,6 +262,8 @@ const Orders = () => {
     );
   });
 
+  const currentSelectedSource = sources.find(s => s.name === formData.source);
+
   return (
     <div style={{ flex: 1, padding: '30px', backgroundColor: '#f9f6f0', overflowX: 'auto', fontFamily: 'sans-serif', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
@@ -277,7 +316,12 @@ const Orders = () => {
                 <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed', backgroundColor: isMatch ? '#f0f0f0' : 'transparent', transition: 'background-color 0.2s' }}>
                   <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                   <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#888' }}>{order.customerPhone}</div></td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>{matchedSrc ? `${matchedSrc.icon} ${order.source}` : order.source}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {matchedSrc ? matchedSrc.icon : null}
+                      <span>{order.source}</span>
+                    </div>
+                  </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
                       <div>{formatDate(order.orderDate)}</div>
@@ -323,16 +367,49 @@ const Orders = () => {
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Telefon Nömrəsi</label>
                   <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
-                <div style={{ flex: 1.1 }}>
+                
+                {/* Xüsusi İkonlu Dropdown Menyu */}
+                <div style={{ flex: 1.1, position: 'relative' }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
-                  <select value={formData.source} onChange={handleSourceChange} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', color: '#000' }}>
-                    {sources.map(src => (
-                      <option key={src.name} value={src.name}>
-                        {src.icon} {src.name}
-                      </option>
-                    ))}
-                    <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#5a3d28' }}>⚙️ Əlavə et / Düzəliş et</option>
-                  </select>
+                  <div 
+                    onClick={() => setIsCustomDropdownOpen(!isCustomDropdownOpen)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {currentSelectedSource ? currentSelectedSource.icon : null}
+                      <span>{formData.source}</span>
+                    </div>
+                    <span>▼</span>
+                  </div>
+
+                  {isCustomDropdownOpen && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', zIndex: 1200, maxHeight: '200px', overflowY: 'auto', marginTop: '2px' }}>
+                      {sources.map(src => (
+                        <div 
+                          key={src.name} 
+                          onClick={() => {
+                            setFormData({...formData, source: src.name});
+                            setIsCustomDropdownOpen(false);
+                          }}
+                          style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f0f0f0' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f4f0eb'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                        >
+                          {src.icon}
+                          <span>{src.name}</span>
+                        </div>
+                      ))}
+                      <div 
+                        onClick={() => {
+                          setIsCustomDropdownOpen(false);
+                          setIsSourceModalOpen(true);
+                        }}
+                        style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: '#5a3d28', backgroundColor: '#faf7f2' }}
+                      >
+                        ⚙️ <span>Əlavə et / Düzəliş et</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -410,7 +487,10 @@ const Orders = () => {
             <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
               {sources.map(src => (
                 <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
-                  <span>{src.icon} {src.name}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {src.icon}
+                    <span>{src.name}</span>
+                  </div>
                   <span onClick={() => handleDeleteSource(src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
                 </div>
               ))}

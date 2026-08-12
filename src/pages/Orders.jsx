@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase'; // Firebase konfiqurasiya faylının yolu
+import { db } from '../firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [sources, setSources] = useState([
+  const [sources] = useState([
     { name: 'WhatsApp', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> },
     { name: 'Instagram', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> },
     { name: 'Facebook', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> },
@@ -22,7 +22,6 @@ const Orders = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -37,7 +36,7 @@ const Orders = () => {
     size: '90x90 sm',
     materials: [],
     sellingPrice: '',
-    source: 'Instagram',
+    source: 'WhatsApp',
     hasDelivery: false,
     deliveryAddress: '',
     deliveryPrice: ''
@@ -53,7 +52,6 @@ const Orders = () => {
     'Ləğv edildi': { bg: '#f8d7da', color: '#721c24' }
   };
 
-  // Firebase-dən sifarişləri çəkmək
   const fetchOrders = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "orders"));
@@ -63,7 +61,7 @@ const Orders = () => {
       }));
       setOrders(ordersData);
     } catch (error) {
-      console.error("Sifarişləri çəkərkən xəta baş verdi: ", error);
+      console.error("Xəta: ", error);
     }
   };
 
@@ -77,7 +75,7 @@ const Orders = () => {
       await updateDoc(orderRef, { status: newStatus });
       setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
     } catch (error) {
-      console.error("Status yenilənmədi: ", error);
+      console.error("Xəta: ", error);
     }
   };
 
@@ -87,7 +85,7 @@ const Orders = () => {
         await deleteDoc(doc(db, "orders", id));
         setOrders(orders.filter(o => o.id !== id));
       } catch (error) {
-        console.error("Sifariş silinə bilmədi: ", error);
+        console.error("Xəta: ", error);
       }
     }
   };
@@ -106,7 +104,7 @@ const Orders = () => {
       size: sizesList[0],
       materials: [],
       sellingPrice: '',
-      source: sources[0].name,
+      source: 'WhatsApp',
       hasDelivery: false,
       deliveryAddress: '',
       deliveryPrice: ''
@@ -130,7 +128,7 @@ const Orders = () => {
       size: order.size || sizesList[0],
       materials: order.materials ? [...order.materials] : [],
       sellingPrice: order.sellingPrice ? parseFloat(order.sellingPrice) : '',
-      source: order.source || 'Instagram',
+      source: order.source || 'WhatsApp',
       hasDelivery: order.hasDelivery || false,
       deliveryAddress: order.deliveryAddress || '',
       deliveryPrice: order.deliveryPrice || ''
@@ -159,6 +157,8 @@ const Orders = () => {
     }));
   };
 
+  const totalCost = formData.materials.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
+
   const calculateDays = (start, end) => {
     if (!start || !end) return '';
     const startDate = new Date(start);
@@ -174,14 +174,13 @@ const Orders = () => {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
     if (parts.length === 3) {
-      return `${parts[2]}.${parts[1]}.${parts[0].slice(-2)}`;
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
     }
     return dateStr;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const totalCost = formData.materials.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
     const selling = parseFloat(formData.sellingPrice) || 0;
     const profitVal = (selling - totalCost).toFixed(2);
 
@@ -221,7 +220,7 @@ const Orders = () => {
       }
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Sifariş yadda saxlanılarkən xəta: ", error);
+      console.error("Xəta: ", error);
     }
   };
 
@@ -234,8 +233,6 @@ const Orders = () => {
       (order.product && order.product.toLowerCase().includes(term)) ||
       (order.yarn && order.yarn.toLowerCase().includes(term)) ||
       (order.color && order.color.toLowerCase().includes(term)) ||
-      (order.pattern && order.pattern.toLowerCase().includes(term)) ||
-      (order.size && order.size.toLowerCase().includes(term)) ||
       (order.status && order.status.toLowerCase().includes(term)) ||
       (order.source && order.source.toLowerCase().includes(term))
     );
@@ -284,7 +281,7 @@ const Orders = () => {
                 const statusStyle = statusOptions[currentStatus] || { bg: '#fff3cd', color: '#856404' };
 
                 return (
-                  <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed', transition: 'background-color 0.2s' }}>
+                  <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed' }}>
                     <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                     <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#888' }}>{order.customerPhone}</div></td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
@@ -325,55 +322,55 @@ const Orders = () => {
 
       {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '550px', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '580px', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
+            <h3 style={{ marginTop: 0, color: '#333', fontSize: '20px', marginBottom: '20px' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               
-              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fbf8f3', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <div style={{ flex: 1.2 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
-                  <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+                  <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
                 </div>
                 <div style={{ flex: 1.1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Telefon Nömrəsi</label>
-                  <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+                  <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
-                  <select value={formData.source} onChange={(e) => setFormData({...formData, source: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }}>
+                  <select value={formData.source} onChange={(e) => setFormData({...formData, source: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }}>
                     {sources.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fbf8f3', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
-                  <input type="date" required value={formData.orderDate} onChange={(e) => setFormData({...formData, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+                  <input type="date" required value={formData.orderDate} onChange={(e) => setFormData({...formData, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Təhvil Tarixi</label>
-                  <input type="date" required value={formData.deliveryDate} onChange={(e) => setFormData({...formData, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+                  <input type="date" required value={formData.deliveryDate} onChange={(e) => setFormData({...formData, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
                 </div>
               </div>
 
-              <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Məhsul</label>
-                    <select value={formData.product} onChange={(e) => setFormData({...formData, product: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '4px' }}>
+                    <select value={formData.product} onChange={(e) => setFormData({...formData, product: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', marginTop: '4px', backgroundColor: '#fff' }}>
                       {productsList.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>İp</label>
-                    <select value={formData.yarn} onChange={(e) => setFormData({...formData, yarn: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '4px' }}>
+                    <select value={formData.yarn} onChange={(e) => setFormData({...formData, yarn: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', marginTop: '4px', backgroundColor: '#fff' }}>
                       {yarnsList.map(y => <option key={y} value={y}>{y}</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Rəng</label>
-                    <select value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '4px' }}>
+                    <select value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', marginTop: '4px', backgroundColor: '#fff' }}>
                       {colorsList.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
@@ -382,25 +379,25 @@ const Orders = () => {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Hörgü</label>
-                    <select value={formData.pattern} onChange={(e) => setFormData({...formData, pattern: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '4px' }}>
+                    <select value={formData.pattern} onChange={(e) => setFormData({...formData, pattern: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', marginTop: '4px', backgroundColor: '#fff' }}>
                       {patternsList.map(pt => <option key={pt} value={pt}>{pt}</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Ölçü</label>
-                    <select value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '4px' }}>
+                    <select value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', marginTop: '4px', backgroundColor: '#fff' }}>
                       {sizesList.map(sz => <option key={sz} value={sz}>{sz}</option>)}
                     </select>
                   </div>
                 </div>
               </div>
 
-              <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>İstifadə Edilən Materiallar</label>
+              <div style={{ backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>İstifadə Edilən Materiallar (İp, Etiket, Paket, Lent və s.)</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <input type="text" placeholder="Məs: 3 yumaq ip" value={tempMaterialName} onChange={(e) => setTempMaterialName(e.target.value)} style={{ flex: 1.5, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px', backgroundColor: '#fff' }} />
-                  <input type="number" step="0.01" placeholder="Qiymət (AZN)" value={tempMaterialPrice} onChange={(e) => setTempMaterialPrice(e.target.value)} style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px', backgroundColor: '#fff' }} />
-                  <button type="button" onClick={handleAddMaterial} style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Əlavə et</button>
+                  <input type="text" placeholder="Məs: 1 ədəd paket və ya etiket" value={tempMaterialName} onChange={(e) => setTempMaterialName(e.target.value)} style={{ flex: 1.5, padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', fontSize: '12px', backgroundColor: '#fff' }} />
+                  <input type="number" step="0.01" placeholder="Qiymət (AZN)" value={tempMaterialPrice} onChange={(e) => setTempMaterialPrice(e.target.value)} style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', fontSize: '12px', backgroundColor: '#fff' }} />
+                  <button type="button" onClick={handleAddMaterial} style={{ padding: '8px 15px', backgroundColor: '#222', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>+ Əlavə et</button>
                 </div>
                 {formData.materials.map((mat, index) => (
                   <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: '6px 10px', borderRadius: '4px', border: '1px solid #e0dcd5', fontSize: '12px' }}>
@@ -410,14 +407,25 @@ const Orders = () => {
                 ))}
               </div>
 
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti (AZN)</label>
-                <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri (Avtomatik Hesablanır)</label>
+                  <input type="text" readOnly value={`${totalCost.toFixed(2)} AZN`} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#eee', color: '#333', fontWeight: 'bold' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</label>
+                  <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dcd6cd', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
+                </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
-                <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Yadda saxla</button>
+              <div style={{ backgroundColor: '#fcf9f5', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input type="checkbox" id="deliveryCheck" checked={formData.hasDelivery} onChange={(e) => setFormData({...formData, hasDelivery: e.target.checked})} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                <label htmlFor="deliveryCheck" style={{ fontSize: '13px', fontWeight: 'bold', color: '#333', cursor: 'pointer' }}>Çatdırılma var</label>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 20px', backgroundColor: '#dcd6cd', color: '#333', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
+                <button type="submit" style={{ padding: '8px 20px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Əlavə et</button>
               </div>
             </form>
           </div>

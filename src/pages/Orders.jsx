@@ -741,6 +741,4 @@ const Orders = () => {
   );
 };
 
-Orders.propTypes = {};
-
-exports default Orders;
+export default Orders;

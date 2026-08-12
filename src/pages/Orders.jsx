@@ -7,8 +7,8 @@ const Orders = () => {
       code: 'ALP-001',
       customerName: 'Leyla',
       customerPhone: '0559876543',
-      orderDate: '04.08.26',
-      deliveryDate: '07.08.26',
+      orderDate: '2026-08-04',
+      deliveryDate: '2026-08-07',
       product: 'Uşaq Yorğanı',
       yarn: 'Alize Puffy',
       color: '55 - Ağ',
@@ -24,7 +24,7 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newOrder, setNewOrder] = useState({
-    code: 'ALP-002', customerName: '', customerPhone: '', orderDate: '12.08.26', deliveryDate: '', product: '', yarn: 'Alize Puffy', color: 'Qəhvəyi', pattern: '', size: '', costPrice: '', sellingPrice: '', status: 'Hazırlanır'
+    code: 'ALP-002', customerName: '', customerPhone: '', orderDate: '2026-08-12', deliveryDate: '2026-08-15', product: '', yarn: 'Alize Puffy', color: 'Qəhvəyi', pattern: '', size: '', costPrice: '', sellingPrice: '', status: 'Hazırlanır'
   });
 
   const statusOptions = {
@@ -36,6 +36,21 @@ const Orders = () => {
 
   const changeStatus = (id, newStatus) => {
     setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+  };
+
+  const calculateDays = (start, end) => {
+    const diffTime = new Date(end) - new Date(start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 ? `${diffDays} gün` : '';
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}.${parts[1]}.${parts[0].slice(-2)}`;
+    }
+    return dateStr;
   };
 
   const handleAddOrder = (e) => {
@@ -79,11 +94,14 @@ const Orders = () => {
               <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
                 <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.orderDate} / {order.deliveryDate}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <div>{formatDate(order.orderDate)}</div>
+                  <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
+                </td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', color: '#777' }}>{order.size}</span></td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '13px', fontStyle: 'italic', color: '#333' }}>{order.size}</span></td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
                 <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>

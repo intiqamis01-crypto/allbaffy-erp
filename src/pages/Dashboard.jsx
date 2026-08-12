@@ -38,28 +38,24 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Xəbərdarlıq Qutuları (Birinci şəkildəki dizaynda) */}
+      {/* Xəbərdarlıq Qutuları (Şəkildəki istədiyin dizaynda) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         
         {/* Təcili Sifarişlər Qutusu */}
-        <div style={{ backgroundColor: '#FFF5F5', border: '1px solid #F5C6CB', padding: '14px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#FFE3E3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-            ⏰
-          </div>
+        <div style={{ backgroundColor: '#FFF5F5', border: '1px solid #F5C6CB', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <span style={{ fontSize: '18px', lineHeight: '1.2' }}>⏰</span>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#9B2C2C' }}>Təhvilinə 1 Gün Qalan və ya Keçən Sifarişlər (0)</div>
-            <div style={{ fontSize: '12px', color: '#7A624E', marginTop: '2px' }}>Təhvil tarixi yaxınlaşan təcili sifariş yoxdur.</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#C53030' }}>Təhvilinə 1 Gün Qalan və ya Keçən Sifarişlər (0)</div>
+            <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>Təhvil tarixi yaxınlaşan təcili sifariş yoxdur.</div>
           </div>
         </div>
 
         {/* Stoku Azalan İplər Qutusu */}
-        <div style={{ backgroundColor: '#FEFCBF', border: '1px solid #FAF089', padding: '14px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#FEFC9F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-            ⚠️
-          </div>
+        <div style={{ backgroundColor: '#FEFCBF', border: '1px solid #FAF089', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <span style={{ fontSize: '18px', lineHeight: '1.2' }}>⚠️</span>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#744210' }}>Stoku Azalan İplər və Materiallar (0)</div>
-            <div style={{ fontSize: '12px', color: '#7A624E', marginTop: '2px' }}>Stokda kritik səviyyədə azalan xammal və ya məhsul yoxdur.</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#975A16' }}>Stoku Azalan İplər və Materiallar (0)</div>
+            <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>Stokda kritik səviyyədə azalan xammal və ya məhsul yoxdur.</div>
           </div>
         </div>
 

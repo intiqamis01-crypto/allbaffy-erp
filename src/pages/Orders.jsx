@@ -52,7 +52,7 @@ const Orders = () => {
       </div>
 
       <div style={{ marginBottom: '20px', position: 'relative', width: '300px' }}>
-        <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#000', fontSize: '18px' }}>🔍</span>
+        <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', filter: 'grayscale(100%)', fontSize: '18px' }}>🔍</span>
         <input type="text" placeholder="Axtarış..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '10px 10px 10px 35px', borderRadius: '6px', border: '1px solid #ccc' }} />
       </div>
 
@@ -60,34 +60,34 @@ const Orders = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
           <thead>
             <tr style={{ backgroundColor: '#fff', borderBottom: '2px solid #eee', color: '#555' }}>
-              <th style={{ padding: '12px' }}>KOD</th>
-              <th style={{ padding: '12px' }}>MÜŞTƏRİ / TEL</th>
-              <th style={{ padding: '12px' }}>Tarix (Sifariş / Təhvil)</th>
-              <th style={{ padding: '12px' }}>MƏHSUL</th>
-              <th style={{ padding: '12px' }}>İP</th>
-              <th style={{ padding: '12px', textAlign: 'center' }}>RƏNG</th>
-              <th style={{ padding: '12px' }}>HÖRGÜ / ÖLÇÜ</th>
-              <th style={{ padding: '12px' }}>Maya Dəyəri</th>
-              <th style={{ padding: '12px' }}>Satış Qiyməti</th>
-              <th style={{ padding: '12px' }}>QAZANC</th>
-              <th style={{ padding: '12px' }}>STATUS</th>
-              <th style={{ padding: '12px', textAlign: 'center' }}>ƏMƏLİYYAT</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>KOD</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>MÜŞTƏRİ / TEL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Tarix (Sifariş / Təhvil)</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>MƏHSUL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>İP</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>RƏNG</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>HÖRGÜ / ÖLÇÜ</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Maya Dəyəri</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Satış Qiyməti</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>QAZANC</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>STATUS</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>ƏMƏLİYYAT</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
               <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
-                <td style={{ padding: '12px', fontWeight: 'bold' }}>{order.code}</td>
-                <td style={{ padding: '12px' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
-                <td style={{ padding: '12px' }}>{order.orderDate} / {order.deliveryDate}</td>
-                <td style={{ padding: '12px' }}>{order.product}</td>
-                <td style={{ padding: '12px' }}>{order.yarn}</td>
+                <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.orderDate} / {order.deliveryDate}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
-                <td style={{ padding: '12px' }}>{order.pattern}<br/><span style={{ fontSize: '11px', color: '#777' }}>{order.size}</span></td>
-                <td style={{ padding: '12px' }}>{order.costPrice}</td>
-                <td style={{ padding: '12px' }}>{order.sellingPrice}</td>
-                <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold' }}>{order.profit}</td>
-                <td style={{ padding: '12px' }}>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', color: '#777' }}>{order.size}</span></td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
+                <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
                   <select value={order.status} onChange={(e) => changeStatus(order.id, e.target.value)} style={{ padding: '4px', backgroundColor: statusOptions[order.status].bg, color: statusOptions[order.status].color, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                     {Object.keys(statusOptions).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>

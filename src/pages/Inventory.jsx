@@ -165,6 +165,7 @@ export default function Inventory() {
           <span style={{ backgroundColor: '#D9C3B0', padding: '8px 14px', borderRadius: '16px', color: '#3A2E2B', fontWeight: 'bold' }}>
             Cəmi Çeşid: {filteredYarns.length}
           </span>
+
         </div>
       </div>
 
@@ -194,7 +195,7 @@ export default function Inventory() {
             <input type="text" placeholder="https://..." value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #C4B2A0', boxSizing: 'border-box' }} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <button type="submit" style={{ backgroundColor: '#785A46', color: '#FFF', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button type="submit" onClick={handleAddSingleYarn} style={{ backgroundColor: '#785A46', color: '#FFF', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
               Yadda Saxla
             </button>
           </div>

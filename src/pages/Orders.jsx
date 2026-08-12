@@ -22,10 +22,10 @@ const Orders = () => {
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const [newOrder, setNewOrder] = useState({
+  const [formData, setFormData] = useState({
     customerName: '',
     customerPhone: '',
     orderDate: new Date().toISOString().split('T')[0],
@@ -56,14 +56,40 @@ const Orders = () => {
     }
   };
 
-  const startEdit = (order) => {
-    setEditingId(order.id);
-    // İstəsəniz buranı modal ilə və ya sətrin özündə redaktə üçün genişləndirə bilərik. Hələlik sadə məlumat yeniləmə nümunəsi:
-    const newName = prompt("Yeni müştəri adı:", order.customerName);
-    if (newName !== null) {
-      setOrders(orders.map(o => o.id === order.id ? { ...o, customerName: newName } : o));
-    }
+  const openAddModal = () => {
     setEditingId(null);
+    setFormData({
+      customerName: '',
+      customerPhone: '',
+      orderDate: new Date().toISOString().split('T')[0],
+      deliveryDate: '',
+      product: '',
+      yarn: 'Alize Puffy',
+      color: '',
+      pattern: '',
+      size: '',
+      costPrice: '',
+      sellingPrice: ''
+    });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (order) => {
+    setEditingId(order.id);
+    setFormData({
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      orderDate: order.orderDate,
+      deliveryDate: order.deliveryDate,
+      product: order.product,
+      yarn: order.yarn,
+      color: order.color,
+      pattern: order.pattern,
+      size: order.size,
+      costPrice: parseFloat(order.costPrice) || '',
+      sellingPrice: parseFloat(order.sellingPrice) || ''
+    });
+    setIsModalOpen(true);
   };
 
   const calculateDays = (start, end) => {
@@ -82,48 +108,60 @@ const Orders = () => {
     return dateStr;
   };
 
-  const handleAddOrder = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const cost = parseFloat(newOrder.costPrice) || 0;
-    const selling = parseFloat(newOrder.sellingPrice) || 0;
+    const cost = parseFloat(formData.costPrice) || 0;
+    const selling = parseFloat(formData.sellingPrice) || 0;
     const profitVal = (selling - cost).toFixed(2);
 
-    const nextCodeNum = orders.length + 1;
-    const formattedCode = `ALP-${String(nextCodeNum).padStart(3, '0')}`;
+    if (editingId !== null) {
+      // Redaktə
+      setOrders(orders.map(o => {
+        if (o.id === editingId) {
+          return {
+            ...o,
+            customerName: formData.customerName,
+            customerPhone: formData.customerPhone,
+            orderDate: formData.orderDate,
+            deliveryDate: formData.deliveryDate,
+            product: formData.product,
+            yarn: formData.yarn,
+            color: formData.color,
+            pattern: formData.pattern,
+            size: formData.size,
+            costPrice: `${cost.toFixed(2)} AZN`,
+            sellingPrice: `${selling.toFixed(2)} AZN`,
+            profit: `${profitVal >= 0 ? '+' : ''}${profitVal} AZN`
+          };
+        }
+        return o;
+      }));
+    } else {
+      // Yeni əlavə
+      const nextCodeNum = orders.length + 1;
+      const formattedCode = `ALP-${String(nextCodeNum).padStart(3, '0')}`;
 
-    const createdOrder = {
-      id: Date.now(),
-      code: formattedCode,
-      customerName: newOrder.customerName,
-      customerPhone: newOrder.customerPhone,
-      orderDate: newOrder.orderDate,
-      deliveryDate: newOrder.deliveryDate,
-      product: newOrder.product,
-      yarn: newOrder.yarn,
-      color: newOrder.color,
-      pattern: newOrder.pattern,
-      size: newOrder.size,
-      costPrice: `${cost.toFixed(2)} AZN`,
-      sellingPrice: `${selling.toFixed(2)} AZN`,
-      profit: `${profitVal >= 0 ? '+' : ''}${profitVal} AZN`,
-      status: 'Hazırlanır'
-    };
+      const createdOrder = {
+        id: Date.now(),
+        code: formattedCode,
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone,
+        orderDate: formData.orderDate,
+        deliveryDate: formData.deliveryDate,
+        product: formData.product,
+        yarn: formData.yarn,
+        color: formData.color,
+        pattern: formData.pattern,
+        size: formData.size,
+        costPrice: `${cost.toFixed(2)} AZN`,
+        sellingPrice: `${selling.toFixed(2)} AZN`,
+        profit: `${profitVal >= 0 ? '+' : ''}${profitVal} AZN`,
+        status: 'Hazırlanır'
+      };
 
-    setOrders([createdOrder, ...orders]);
-    setIsAddModalOpen(false);
-    setNewOrder({
-      customerName: '',
-      customerPhone: '',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      product: '',
-      yarn: 'Alize Puffy',
-      color: '',
-      pattern: '',
-      size: '',
-      costPrice: '',
-      sellingPrice: ''
-    });
+      setOrders([createdOrder, ...orders]);
+    }
+    setIsModalOpen(false);
   };
 
   const filteredOrders = orders.filter(order => {
@@ -145,7 +183,7 @@ const Orders = () => {
     <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ margin: 0, color: '#333' }}>Sifarişlər</h2>
-        <button onClick={() => setIsAddModalOpen(true)} style={{ backgroundColor: '#5a3d28', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>+ Yeni Sifariş</button>
+        <button onClick={openAddModal} style={{ backgroundColor: '#5a3d28', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>+ Yeni Sifariş</button>
       </div>
 
       <div style={{ marginBottom: '20px', position: 'relative', width: '300px' }}>
@@ -172,98 +210,112 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map((order) => (
-              <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
-                <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
-                    <div>{formatDate(order.orderDate)}</div>
-                    <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
-                  </div>
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', fontStyle: 'italic', color: '#777' }}>{order.size}</span></td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
-                <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <select value={order.status} onChange={(e) => changeStatus(order.id, e.target.value)} style={{ padding: '4px', backgroundColor: statusOptions[order.status].bg, color: statusOptions[order.status].color, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                    {Object.keys(statusOptions).map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <span onClick={() => startEdit(order)} title="Redaktə et" style={{ display: 'inline-block', transform: 'scaleX(-1)', cursor: 'pointer', marginRight: '12px', fontSize: '16px' }}>✎</span>
-                  <span onClick={() => deleteOrder(order.id)} title="Sil" style={{ cursor: 'pointer', fontSize: '20px' }}>🗑</span>
-                </td>
-              </tr>
-            ))}
+            {filteredOrders.map((order) => {
+              const isMatch = searchTerm.trim() !== '' && (
+                order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customerPhone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.yarn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.pattern.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.size.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.status.toLowerCase().includes(searchTerm.toLowerCase())
+              );
+
+              return (
+                <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2', backgroundColor: isMatch ? '#f0f0f0' : 'transparent', transition: 'background-color 0.2s' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
+                      <div>{formatDate(order.orderDate)}</div>
+                      <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', fontStyle: 'italic', color: '#777' }}>{order.size}</span></td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
+                  <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <select value={order.status} onChange={(e) => changeStatus(order.id, e.target.value)} style={{ padding: '4px', backgroundColor: statusOptions[order.status].bg, color: statusOptions[order.status].color, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      {Object.keys(statusOptions).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span onClick={() => openEditModal(order)} title="Redaktə et" style={{ display: 'inline-block', transform: 'scaleX(-1)', cursor: 'pointer', marginRight: '12px', fontSize: '16px' }}>✎</span>
+                    <span onClick={() => deleteOrder(order.id)} title="Sil" style={{ cursor: 'pointer', fontSize: '20px' }}>🗑</span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {isAddModalOpen && (
+      {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '400px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ marginTop: 0, color: '#5a3d28' }}>Yeni Sifariş Əlavə Et</h3>
-            <form onSubmit={handleAddOrder} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h3 style={{ marginTop: 0, color: '#5a3d28' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
-                <input type="text" placeholder="Müştəri adı" required value={newOrder.customerName} onChange={(e) => setNewOrder({...newOrder, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Telefonu</label>
-                <input type="text" placeholder="055XXXXXXX" required value={newOrder.customerPhone} onChange={(e) => setNewOrder({...newOrder, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
-                  <input type="date" required value={newOrder.orderDate} onChange={(e) => setNewOrder({...newOrder, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="date" required value={formData.orderDate} onChange={(e) => setFormData({...formData, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Təhvil Tarixi</label>
-                  <input type="date" required value={newOrder.deliveryDate} onChange={(e) => setNewOrder({...newOrder, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="date" required value={formData.deliveryDate} onChange={(e) => setFormData({...formData, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Məhsul</label>
-                <input type="text" placeholder="Məs: Uşaq Yorğanı" required value={newOrder.product} onChange={(e) => setNewOrder({...newOrder, product: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                <input type="text" placeholder="Məs: Uşaq Yorğanı" required value={formData.product} onChange={(e) => setFormData({...formData, product: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>İp</label>
-                  <input type="text" placeholder="Alize Puffy" required value={newOrder.yarn} onChange={(e) => setNewOrder({...newOrder, yarn: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="text" placeholder="Alize Puffy" required value={formData.yarn} onChange={(e) => setFormData({...formData, yarn: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Rəng</label>
-                  <input type="text" placeholder="Məs: 55 - Ağ" required value={newOrder.color} onChange={(e) => setNewOrder({...newOrder, color: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="text" placeholder="Məs: 55 - Ağ" required value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Hörgü</label>
-                  <input type="text" placeholder="Klassik Hörgü" required value={newOrder.pattern} onChange={(e) => setNewOrder({...newOrder, pattern: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="text" placeholder="Klassik Hörgü" required value={formData.pattern} onChange={(e) => setFormData({...formData, pattern: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Ölçü</label>
-                  <input type="text" placeholder="90x90 sm" required value={newOrder.size} onChange={(e) => setNewOrder({...newOrder, size: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="text" placeholder="90x90 sm" required value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</label>
-                  <input type="number" step="0.01" placeholder="35.00" required value={newOrder.costPrice} onChange={(e) => setNewOrder({...newOrder, costPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="number" step="0.01" placeholder="35.00" required value={formData.costPrice} onChange={(e) => setFormData({...formData, costPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</label>
-                  <input type="number" step="0.01" placeholder="80.00" required value={newOrder.sellingPrice} onChange={(e) => setNewOrder({...newOrder, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setIsAddModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
-                <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Əlavə et</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
+                <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
               </div>
             </form>
           </div>

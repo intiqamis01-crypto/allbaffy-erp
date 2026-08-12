@@ -41,7 +41,7 @@ export default function Dashboard() {
       {/* Xəbərdarlıq Qutuları (Şəkildəki istədiyin dizaynda) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         
-        {/* Təcili Sifarişlər Qutusu */}
+        {/*Təcili Sifarişlər Qutusu*/}
         <div style={{ backgroundColor: '#FFF5F5', border: '1px solid #F5C6CB', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
           <span style={{ fontSize: '18px', lineHeight: '1.2' }}>🕒</span>
           <div>

@@ -43,25 +43,25 @@ export default function Dashboard() {
         {/* Sifarişlər */}
         <div style={{ backgroundColor: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2D7C7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#7A624E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>SİFARİŞLƏR</span>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>{orders.length} ədəd</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>{orders.length} 0 ədəd</div>
         </div>
 
         {/* Satış */}
         <div style={{ backgroundColor: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2D7C7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#7A624E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>SATIŞ</span>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>80.00 AZN</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>0.00 AZN</div>
         </div>
 
         {/* Rasxod */}
         <div style={{ backgroundColor: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2D7C7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#7A624E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rasxod</span>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>35.00 AZN</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2C1D11', marginTop: '6px' }}>0.00 AZN</div>
         </div>
 
         {/* Qazanc */}
         <div style={{ backgroundColor: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2D7C7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#7A624E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>QAZANC</span>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#15803d', marginTop: '6px' }}>+45.00 AZN</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#15803d', marginTop: '6px' }}>0.00 AZN</div>
         </div>
 
       </div>
@@ -96,7 +96,7 @@ export default function Dashboard() {
           
           <div style={{ backgroundColor: '#FFFDF0', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #D69E2E' }}>
             <div style={{ fontSize: '12px', color: '#744210', fontWeight: 'bold' }}>Hazırlanır</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2C1D11', marginTop: '4px' }}>1 ədəd</div>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2C1D11', marginTop: '4px' }}>0 ədəd</div>
           </div>
 
           <div style={{ backgroundColor: '#F0FFF4', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #38A169' }}>

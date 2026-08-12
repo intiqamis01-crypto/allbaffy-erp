@@ -593,8 +593,8 @@ const Orders = () => {
             <h3 style={{ marginTop: 0, color: '#333' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
-              {/* 1-ci sətir: Müştəri Adı, Telefon Nömrəsi, Mənbə (Açıq krem fon) */}
-              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fcfbfa', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
+              {/* Qırmızı ilə işarələnmiş 1-ci hissə: Müştəri və Mənbə */}
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fbf8f3', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <div style={{ flex: 1.2 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
                   <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
@@ -607,8 +607,8 @@ const Orders = () => {
                 {renderCustomSelect('Mənbə', 'source', formData.source, sources, true)}
               </div>
 
-              {/* 2-ci sətir: Sifariş Tarixi, Təhvil Tarixi (Açıq krem fon) */}
-              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fcfbfa', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
+              {/* Qırmızı ilə işarələnmiş 2-ci hissə: Tarixlər */}
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fbf8f3', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
                   <input type="date" required value={formData.orderDate} onChange={(e) => setFormData({...formData, orderDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
@@ -619,7 +619,7 @@ const Orders = () => {
                 </div>
               </div>
 
-              {/* 3-cü və 4-cü sətirlər: Məhsul xüsusiyyətləri */}
+              {/* Boz/Qara xətt ilə işarələnmiş hissə: Məhsul xüsusiyyətləri */}
               <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {renderCustomSelect('Məhsul', 'product', formData.product, productsList)}
@@ -633,8 +633,8 @@ const Orders = () => {
                 </div>
               </div>
 
-              {/* İstifadə Edilən Materiallar Bölməsi */}
-              <div style={{ backgroundColor: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #e0dbd1', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* Açıq qəhvəyi xətt ilə işarələnmiş hissə 1: İstifadə Edilən Materiallar */}
+              <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>İstifadə Edilən Materiallar (İp, Etiket, Paket, Lent və s.)</label>
                 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -643,7 +643,7 @@ const Orders = () => {
                     placeholder="Məs: 1 ədəd paket və ya etiket" 
                     value={tempMaterialName} 
                     onChange={(e) => setTempMaterialName(e.target.value)} 
-                    style={{ flex: 1.5, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px' }} 
+                    style={{ flex: 1.5, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px', backgroundColor: '#fff' }} 
                   />
                   <input 
                     type="number" 
@@ -651,7 +651,7 @@ const Orders = () => {
                     placeholder="Qiymət (AZN)" 
                     value={tempMaterialPrice} 
                     onChange={(e) => setTempMaterialPrice(e.target.value)} 
-                    style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px' }} 
+                    style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '12px', backgroundColor: '#fff' }} 
                   />
                   <button 
                     type="button" 
@@ -665,7 +665,7 @@ const Orders = () => {
                 {formData.materials.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                     {formData.materials.map((mat, index) => (
-                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', backgroundColor: '#fcfbfa', borderRadius: '4px', border: '1px solid #eee', fontSize: '12px' }}>
+                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', backgroundColor: '#fff', borderRadius: '4px', border: '1px solid #eee', fontSize: '12px' }}>
                         <span style={{ fontWeight: '500' }}>{mat.name} – <strong>{mat.price.toFixed(2)} AZN</strong></span>
                         <span onClick={() => handleRemoveMaterial(index)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '12px' }}>Sil</span>
                       </div>
@@ -674,8 +674,8 @@ const Orders = () => {
                 )}
               </div>
 
-              {/* 6-cı sətir: Maya Dəyəri və Satış Qiyməti */}
-              <div style={{ display: 'flex', gap: '10px' }}>
+              {/* Tünd qəhvəyi xətt ilə işarələnmiş hissə: Maya Dəyəri və Satış Qiyməti */}
+              <div style={{ display: 'flex', gap: '10px', backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri (Avtomatik Hesablanır)</label>
                   <input 
@@ -687,11 +687,11 @@ const Orders = () => {
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</label>
-                  <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                  <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff' }} />
                 </div>
               </div>
 
-              {/* 7-ci sətir: Çatdırılma bölməsi */}
+              {/* Bənövşəyi xətt ilə işarələnmiş hissə 1: Çatdırılma */}
               <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', color: '#333' }}>
                   <input 
@@ -730,7 +730,8 @@ const Orders = () => {
                 )}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+              {/* Bənövşəyi xətt ilə işarələnmiş hissə 2: Düymələr paneli */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px', backgroundColor: '#fbf8f3', padding: '10px', borderRadius: '6px', border: '1px solid #f0e9dd' }}>
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
                 <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
               </div>

@@ -280,10 +280,15 @@ const Orders = () => {
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
                 <select value={formData.source} onChange={(e) => setFormData({...formData, source: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }}>
-                  <option value="Instagram">Instagram</option>
                   <option value="WhatsApp">WhatsApp</option>
-                  <option value="TikTok">TikTok</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Tiktok">Tiktok</option>
+                  <option value="Sayt">Sayt</option>
+                  <option value="Tövsiyyə">Tövsiyyə</option>
+                  <option value="Mağaza">Mağaza</option>
                   <option value="Digər">Digər</option>
+                  <option value="Əlavə et / Düzəliş et">Əlavə et / Düzəliş et</option>
                 </select>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>

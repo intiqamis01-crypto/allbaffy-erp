@@ -185,104 +185,83 @@ const Orders = () => {
   });
 
   return (
-    <div style={{ display: 'flex', fontFamily: 'sans-serif', backgroundColor: '#fdfbf7', minHeight: '100vh', width: '100%' }}>
-      {/* Sidebar */}
-      <div style={{ width: '240px', backgroundColor: '#f4ece1', borderRight: '1px solid #e6dcd0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-        <div style={{ padding: '20px', borderBottom: '1px solid #e6dcd0' }}>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#4a3525' }}>Allbaffy ERP</h2>
-          <span style={{ fontSize: '11px', color: '#7a6555' }}>İdarəetmə Paneli</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', padding: '10px', gap: '5px' }}>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>🏠 Əsas Səhifə</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', backgroundColor: '#e2d4c3', fontWeight: 'bold', color: '#4a3525', fontSize: '14px' }}>📦 Sifarişlər</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>📊 Stock</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>📥 Alınan</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>💸 Xərc</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>🏷 Barkod</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>📈 Hesabat</div>
-          <div style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', color: '#4a3525', fontSize: '14px' }}>⚙️ Tənzimləmələr</div>
-        </div>
+    <div style={{ flex: 1, padding: '30px', backgroundColor: '#f9f6f0', overflowX: 'auto', fontFamily: 'sans-serif', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <h1 style={{ margin: 0, fontSize: '24px', color: '#333' }}>Sifarişlər</h1>
+        <button onClick={openAddModal} style={{ backgroundColor: '#5a3d28', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>+ Yeni Sifariş</button>
       </div>
 
-      {/* Main Content */}
-      <div style={{ flex: 1, padding: '30px', backgroundColor: '#f9f6f0', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-          <h1 style={{ margin: 0, fontSize: '24px', color: '#333' }}>Sifarişlər</h1>
-          <button onClick={openAddModal} style={{ backgroundColor: '#5a3d28', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>+ Yeni Sifariş</button>
-        </div>
+      <div style={{ marginBottom: '20px', position: 'relative', width: '280px' }}>
+        <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', filter: 'grayscale(100%)', fontSize: '16px' }}>🔍</span>
+        <input type="text" placeholder="Axtarış..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '8px 10px 8px 32px', borderRadius: '6px', border: '1px solid #dcd6cd', backgroundColor: '#fff', boxSizing: 'border-box' }} />
+      </div>
 
-        <div style={{ marginBottom: '20px', position: 'relative', width: '280px' }}>
-          <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', filter: 'grayscale(100%)', fontSize: '16px' }}>🔍</span>
-          <input type="text" placeholder="Axtarış..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '8px 10px 8px 32px', borderRadius: '6px', border: '1px solid #dcd6cd', backgroundColor: '#fff', boxSizing: 'border-box' }} />
-        </div>
+      <div style={{ overflowX: 'auto', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', border: '1px solid #eee' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#fff', borderBottom: '2px solid #f0eae1' }}>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>KOD</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MÜŞTƏRİ / TEL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MƏNBƏ</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Tarix (Sifariş / Təhvil)</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MƏHSUL</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>İP</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>RƏNG</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>HÖRGÜ / ÖLÇÜ</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>QAZANC</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>STATUS</th>
+              <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>ƏMƏLİYYAT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map((order) => {
+              const isMatch = searchTerm.trim() !== '' && (
+                order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customerPhone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.yarn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.pattern.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.size.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (order.source && order.source.toLowerCase().includes(searchTerm.toLowerCase()))
+              );
 
-        <div style={{ overflowX: 'auto', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', border: '1px solid #eee' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#fff', borderBottom: '2px solid #f0eae1' }}>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>KOD</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MÜŞTƏRİ / TEL</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MƏNBƏ</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Tarix (Sifariş / Təhvil)</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>MƏHSUL</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>İP</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>RƏNG</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>HÖRGÜ / ÖLÇÜ</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>Satış Qiyməti</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>QAZANC</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>STATUS</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#555' }}>ƏMƏLİYYAT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => {
-                const isMatch = searchTerm.trim() !== '' && (
-                  order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.customerPhone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.yarn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.pattern.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.size.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (order.source && order.source.toLowerCase().includes(searchTerm.toLowerCase()))
-                );
-
-                return (
-                  <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed', backgroundColor: isMatch ? '#f0f0f0' : 'transparent', transition: 'background-color 0.2s' }}>
-                    <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#888' }}>{order.customerPhone}</div></td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.source}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
-                        <div>{formatDate(order.orderDate)}</div>
-                        <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#888' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', fontStyle: 'italic', color: '#888' }}>{order.size}</span></td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
-                    <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <select value={order.status} onChange={(e) => changeStatus(order.id, e.target.value)} style={{ padding: '4px', backgroundColor: statusOptions[order.status].bg, color: statusOptions[order.status].color, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                        {Object.keys(statusOptions).map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span onClick={() => openEditModal(order)} title="Redaktə et" style={{ display: 'inline-block', transform: 'scaleX(-1)', cursor: 'pointer', marginRight: '12px', fontSize: '15px' }}>✎</span>
-                      <span onClick={() => deleteOrder(order.id)} title="Sil" style={{ cursor: 'pointer', fontSize: '16px' }}>🗑</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              return (
+                <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed', backgroundColor: isMatch ? '#f0f0f0' : 'transparent', transition: 'background-color 0.2s' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#888' }}>{order.customerPhone}</div></td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.source}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
+                      <div>{formatDate(order.orderDate)}</div>
+                      <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#888' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', fontStyle: 'italic', color: '#888' }}>{order.size}</span></td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
+                  <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <select value={order.status} onChange={(e) => changeStatus(order.id, e.target.value)} style={{ padding: '4px', backgroundColor: statusOptions[order.status].bg, color: statusOptions[order.status].color, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      {Object.keys(statusOptions).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span onClick={() => openEditModal(order)} title="Redaktə et" style={{ display: 'inline-block', transform: 'scaleX(-1)', cursor: 'pointer', marginRight: '12px', fontSize: '15px' }}>✎</span>
+                    <span onClick={() => deleteOrder(order.id)} title="Sil" style={{ cursor: 'pointer', fontSize: '16px' }}>🗑</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {isModalOpen && (

@@ -286,8 +286,12 @@ const Orders = () => {
 
   const calculateDays = (start, end) => {
     if (!start || !end) return '';
-    const diffTime = new Date(end) - new Date(start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+    const diffTime = endDate - startDate;
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     return diffDays >= 0 ? `${diffDays} gün` : '';
   };
 

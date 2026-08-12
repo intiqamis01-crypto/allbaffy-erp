@@ -94,14 +94,16 @@ const Orders = () => {
               <tr key={order.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
                 <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#777' }}>{order.customerPhone}</div></td>
-                <td style={{ padding: '12px', textAlign: 'center', lineHeight: '1.4' }}>
-                  <div>{formatDate(order.orderDate)}</div>
-                  <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
+                    <div>{formatDate(order.orderDate)}</div>
+                    <div>{formatDate(order.deliveryDate)} <span style={{ fontSize: '11px', color: '#777' }}>({calculateDays(order.orderDate, order.deliveryDate)})</span></div>
+                  </div>
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.product}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.yarn}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.color}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '13px', fontStyle: 'italic', color: '#333' }}>{order.size}</span></td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>{order.pattern}<br/><span style={{ fontSize: '11px', fontStyle: 'italic', color: '#777' }}>{order.size}</span></td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.costPrice}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{order.sellingPrice}</td>
                 <td style={{ padding: '12px', color: '#28a745', fontWeight: 'bold', textAlign: 'center' }}>{order.profit}</td>

@@ -23,14 +23,14 @@ const Orders = () => {
   ]);
 
   const [sources, setSources] = useState([
-    'WhatsApp',
-    'Instagram',
-    'Facebook',
-    'Tiktok',
-    'Sayt',
-    'Tövsiyyə',
-    'Mağaza',
-    'Digər'
+    { name: 'WhatsApp', icon: '💬' },
+    { name: 'Instagram', icon: '📷' },
+    { name: 'Facebook', icon: '👥' },
+    { name: 'Tiktok', icon: '🎵' },
+    { name: 'Sayt', icon: '🌐' },
+    { name: 'Tövsiyyə', icon: '🤝' },
+    { name: 'Mağaza', icon: '🏪' },
+    { name: 'Digər', icon: '📌' }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,7 +85,7 @@ const Orders = () => {
       size: '',
       costPrice: '',
       sellingPrice: '',
-      source: sources[0] || 'Instagram'
+      source: sources[0] ? sources[0].name : 'Instagram'
     });
     setIsModalOpen(true);
   };
@@ -120,8 +120,8 @@ const Orders = () => {
 
   const handleAddSource = (e) => {
     e.preventDefault();
-    if (newSourceText.trim() && !sources.includes(newSourceText.trim())) {
-      const updatedSources = [...sources, newSourceText.trim()];
+    if (newSourceText.trim() && !sources.some(s => s.name === newSourceText.trim())) {
+      const updatedSources = [...sources, { name: newSourceText.trim(), icon: '📌' }];
       setSources(updatedSources);
       setFormData({...formData, source: newSourceText.trim()});
       setNewSourceText('');
@@ -129,11 +129,11 @@ const Orders = () => {
     }
   };
 
-  const handleDeleteSource = (sourceToDelete) => {
-    const filtered = sources.filter(s => s !== sourceToDelete);
+  const handleDeleteSource = (sourceNameToDelete) => {
+    const filtered = sources.filter(s => s.name !== sourceNameToDelete);
     setSources(filtered);
-    if (formData.source === sourceToDelete) {
-      setFormData({...formData, source: filtered[0] || ''});
+    if (formData.source === sourceNameToDelete) {
+      setFormData({...formData, source: filtered[0] ? filtered[0].name : ''});
     }
   };
 
@@ -271,11 +271,13 @@ const Orders = () => {
                 (order.source && order.source.toLowerCase().includes(searchTerm.toLowerCase()))
               );
 
+              const matchedSrc = sources.find(s => s.name === order.source);
+
               return (
                 <tr key={order.id} style={{ borderBottom: '1px solid #f7f3ed', backgroundColor: isMatch ? '#f0f0f0' : 'transparent', transition: 'background-color 0.2s' }}>
                   <td style={{ padding: '12px', fontWeight: 'bold', textAlign: 'center' }}>{order.code}</td>
                   <td style={{ padding: '12px', textAlign: 'center' }}><div>{order.customerName}</div><div style={{ fontSize: '11px', color: '#888' }}>{order.customerPhone}</div></td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>{order.source}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{matchedSrc ? `${matchedSrc.icon} ${order.source}` : order.source}</td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <div style={{ display: 'inline-block', textAlign: 'left', lineHeight: '1.4' }}>
                       <div>{formatDate(order.orderDate)}</div>
@@ -307,26 +309,33 @@ const Orders = () => {
 
       {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '400px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '550px', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
             <h3 style={{ marginTop: 0, color: '#333' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
-                <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+              
+              {/* 1-ci sətir: Müştəri Adı, Telefon Nömrəsi, Mənbə eyni sətirdə */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1.2 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
+                  <input type="text" placeholder="Müştəri adı" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                </div>
+                <div style={{ flex: 1.1 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Telefon Nömrəsi</label>
+                  <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+                </div>
+                <div style={{ flex: 1.1 }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
+                  <select value={formData.source} onChange={handleSourceChange} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', color: '#000' }}>
+                    {sources.map(src => (
+                      <option key={src.name} value={src.name}>
+                        {src.icon} {src.name}
+                      </option>
+                    ))}
+                    <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#5a3d28' }}>⚙️ Əlavə et / Düzəliş et</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Telefonu</label>
-                <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
-                <select value={formData.source} onChange={handleSourceChange} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }}>
-                  {sources.map(src => (
-                    <option key={src} value={src}>{src}</option>
-                  ))}
-                  <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#5a3d28' }}>+ Əlavə et / Düzəliş et</option>
-                </select>
-              </div>
+
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
@@ -400,9 +409,9 @@ const Orders = () => {
 
             <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
               {sources.map(src => (
-                <div key={src} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
-                  <span>{src}</span>
-                  <span onClick={() => handleDeleteSource(src)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
+                  <span>{src.icon} {src.name}</span>
+                  <span onClick={() => handleDeleteSource(src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
                 </div>
               ))}
             </div>

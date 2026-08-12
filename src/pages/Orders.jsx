@@ -187,7 +187,7 @@ const Orders = () => {
   return (
     <div style={{ display: 'flex', fontFamily: 'sans-serif', backgroundColor: '#fdfbf7', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <div style={{ width: '240px', backgroundColor: '#f4ece1', borderRight: '1px solid #e6dcd0', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: '240px', backgroundColor: '#f4ece1', borderRight: '1px solid #e6dcd0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '20px', borderBottom: '1px solid #e6dcd0' }}>
           <h2 style={{ margin: 0, fontSize: '18px', color: '#4a3525' }}>Allbaffy ERP</h2>
           <span style={{ fontSize: '11px', color: '#7a6555' }}>İdarəetmə Paneli</span>
@@ -208,7 +208,7 @@ const Orders = () => {
       <div style={{ flex: 1, padding: '30px', backgroundColor: '#f9f6f0', overflowX: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', color: '#333' }}>Sifarişlər</h1>
-          <button onClick={openAddModal} style={{ backgroundColor: '#2d4a3e', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>+ Yeni Sifariş</button>
+          <button onClick={openAddModal} style={{ backgroundColor: '#5a3d28', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>+ Yeni Sifariş</button>
         </div>
 
         <div style={{ marginBottom: '20px', position: 'relative', width: '280px' }}>
@@ -353,7 +353,7 @@ const Orders = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
-                <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#2d4a3e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
+                <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
               </div>
             </form>
           </div>

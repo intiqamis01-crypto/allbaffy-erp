@@ -164,8 +164,12 @@ const Orders = () => {
     setIsModalOpen(true);
   };
 
-  const handleAddMaterial = () => {
-    if (!tempMaterialName.trim() || !tempMaterialPrice) return;
+  const handleAddMaterial = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!tempMaterialName.trim()) return;
     const priceVal = parseFloat(tempMaterialPrice) || 0;
     setFormData(prev => ({
       ...prev,

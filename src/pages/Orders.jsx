@@ -64,20 +64,24 @@ const Orders = () => {
       icon: (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       ) 
-    },
-    { 
-      name: 'Digər', 
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-      ) 
     }
   ]);
 
+  // Əlavə açılan siyahılar üçün state-lər
+  const [productsList, setProductsList] = useState(['Uşaq Yorğanı', 'Şərf', 'Gift Box', 'Jaket', 'Jilet', 'Oyun Matı']);
+  const [yarnsList, setYarnsList] = useState(['Alize Puffy', 'Alize Puffy Fine', 'Alize Puffy Color']);
+  const [colorsList, setColorsList] = useState(['55 - Ağ', '60 - Krem', '15 - Ətrəngi', '310 - Pudra']);
+  const [patternsList, setPatternsList] = useState(['Klassik Hörgü', 'Şahmat', 'Sep Hörgü']);
+  const [sizesList, setSizesList] = useState(['90x90 sm', '100x120 sm', 'Standard']);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
-  const [isCustomDropdownOpen, setIsCustomDropdownOpen] = useState(false);
-  const [newSourceText, setNewSourceText] = useState('');
+  
+  // Modallar üçün state-lər
+  const [activeDropdown, setActiveDropdown] = useState(null); // 'source', 'product', 'yarn', 'color', 'pattern', 'size'
+  const [manageModalType, setManageModalType] = useState(null); // 'source', 'product', 'yarn', 'color', 'pattern', 'size'
+  const [newItemText, setNewItemText] = useState('');
+
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -85,11 +89,11 @@ const Orders = () => {
     customerPhone: '',
     orderDate: new Date().toISOString().split('T')[0],
     deliveryDate: '',
-    product: '',
+    product: 'Uşaq Yorğanı',
     yarn: 'Alize Puffy',
-    color: '',
-    pattern: '',
-    size: '',
+    color: '55 - Ağ',
+    pattern: 'Klassik Hörgü',
+    size: '90x90 sm',
     costPrice: '',
     sellingPrice: '',
     source: 'Instagram'
@@ -119,11 +123,11 @@ const Orders = () => {
       customerPhone: '',
       orderDate: new Date().toISOString().split('T')[0],
       deliveryDate: '',
-      product: '',
-      yarn: 'Alize Puffy',
-      color: '',
-      pattern: '',
-      size: '',
+      product: productsList[0] || '',
+      yarn: yarnsList[0] || '',
+      color: colorsList[0] || '',
+      pattern: patternsList[0] || '',
+      size: sizesList[0] || '',
       costPrice: '',
       sellingPrice: '',
       source: sources[0] ? sources[0].name : 'Instagram'
@@ -150,27 +154,89 @@ const Orders = () => {
     setIsModalOpen(true);
   };
 
-  const handleAddSource = (e) => {
+  const handleAddNewItem = (e) => {
     e.preventDefault();
-    if (newSourceText.trim() && !sources.some(s => s.name === newSourceText.trim())) {
-      const updatedSources = [...sources, { 
-        name: newSourceText.trim(), 
-        icon: (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        ) 
-      }];
-      setSources(updatedSources);
-      setFormData({...formData, source: newSourceText.trim()});
-      setNewSourceText('');
-      setIsSourceModalOpen(false);
+    const val = newItemText.trim();
+    if (!val) return;
+
+    if (manageModalType === 'source') {
+      if (!sources.some(s => s.name === val)) {
+        setSources([...sources, { 
+          name: val, 
+          icon: (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          ) 
+        }]);
+        setFormData(prev => ({...prev, source: val}));
+      }
+    } else if (manageModalType === 'product') {
+      if (!productsList.includes(val)) {
+        setProductsList([...productsList, val]);
+        setFormData(prev => ({...prev, product: val}));
+      }
+    } else if (manageModalType === 'yarn') {
+      if (!yarnsList.includes(val)) {
+        setYarnsList([...yarnsList, val]);
+        setFormData(prev => ({...prev, yarn: val}));
+      }
+    } else if (manageModalType === 'color') {
+      if (!colorsList.includes(val)) {
+        setColorsList([...colorsList, val]);
+        setFormData(prev => ({...prev, color: val}));
+      }
+    } else if (manageModalType === 'pattern') {
+      if (!patternsList.includes(val)) {
+        setPatternsList([...patternsList, val]);
+        setFormData(prev => ({...prev, pattern: val}));
+      }
+    } else if (manageModalType === 'size') {
+      if (!sizesList.includes(val)) {
+        setSizesList([...sizesList, val]);
+        setFormData(prev => ({...prev, size: val}));
+      }
     }
+
+    setNewItemText('');
+    setManageModalType(null);
   };
 
-  const handleDeleteSource = (sourceNameToDelete) => {
-    const filtered = sources.filter(s => s.name !== sourceNameToDelete);
-    setSources(filtered);
-    if (formData.source === sourceNameToDelete) {
-      setFormData({...formData, source: filtered[0] ? filtered[0].name : ''});
+  const handleDeleteItem = (type, itemVal) => {
+    if (type === 'source') {
+      const filtered = sources.filter(s => s.name !== itemVal);
+      setSources(filtered);
+      if (formData.source === itemVal) {
+        setFormData(prev => ({...prev, source: filtered[0] ? filtered[0].name : ''}));
+      }
+    } else if (type === 'product') {
+      const filtered = productsList.filter(i => i !== itemVal);
+      setProductsList(filtered);
+      if (formData.product === itemVal) {
+        setFormData(prev => ({...prev, product: filtered[0] || ''}));
+      }
+    } else if (type === 'yarn') {
+      const filtered = yarnsList.filter(i => i !== itemVal);
+      setYarnsList(filtered);
+      if (formData.yarn === itemVal) {
+        setFormData(prev => ({...prev, yarn: filtered[0] || ''}));
+      }
+    } else if (type === 'color') {
+      const filtered = colorsList.filter(i => i !== itemVal);
+      setColorsList(filtered);
+      if (formData.color === itemVal) {
+        setFormData(prev => ({...prev, color: filtered[0] || ''}));
+      }
+    } else if (type === 'pattern') {
+      const filtered = patternsList.filter(i => i !== itemVal);
+      setPatternsList(filtered);
+      if (formData.pattern === itemVal) {
+        setFormData(prev => ({...prev, pattern: filtered[0] || ''}));
+      }
+    } else if (type === 'size') {
+      const filtered = sizesList.filter(i => i !== itemVal);
+      setSizesList(filtered);
+      if (formData.size === itemVal) {
+        setFormData(prev => ({...prev, size: filtered[0] || ''}));
+      }
     }
   };
 
@@ -263,6 +329,74 @@ const Orders = () => {
   });
 
   const currentSelectedSource = sources.find(s => s.name === formData.source);
+
+  // Dropdown render edən köməkçi funksiya
+  const renderCustomSelect = (labelTitle, typeKey, currentValue, listArray, isSourceType = false) => {
+    const isOpen = activeDropdown === typeKey;
+
+    return (
+      <div style={{ flex: 1, position: 'relative' }}>
+        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>{labelTitle}</label>
+        <div 
+          onClick={() => setActiveDropdown(isOpen ? null : typeKey)}
+          style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {isSourceType && currentSelectedSource ? currentSelectedSource.icon : null}
+            <span>{currentValue}</span>
+          </div>
+          <span>▼</span>
+        </div>
+
+        {isOpen && (
+          <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', zIndex: 1200, maxHeight: '200px', overflowY: 'auto', marginTop: '2px' }}>
+            {isSourceType ? (
+              sources.map(src => (
+                <div 
+                  key={src.name} 
+                  onClick={() => {
+                    setFormData({...formData, source: src.name});
+                    setActiveDropdown(null);
+                  }}
+                  style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f0f0f0' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f4f0eb'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                >
+                  {src.icon}
+                  <span>{src.name}</span>
+                </div>
+              ))
+            ) : (
+              listArray.map(item => (
+                <div 
+                  key={item} 
+                  onClick={() => {
+                    setFormData({...formData, [typeKey]: item});
+                    setActiveDropdown(null);
+                  }}
+                  style={{ padding: '8px 10px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f0f0f0' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f4f0eb'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                >
+                  {item}
+                </div>
+              ))
+            )}
+
+            <div 
+              onClick={() => {
+                setActiveDropdown(null);
+                setManageModalType(typeKey);
+              }}
+              style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: '#5a3d28', backgroundColor: '#faf7f2' }}
+            >
+              ⚙️ <span>Əlavə et / Düzəliş et</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div style={{ flex: 1, padding: '30px', backgroundColor: '#f9f6f0', overflowX: 'auto', fontFamily: 'sans-serif', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
@@ -357,7 +491,7 @@ const Orders = () => {
             <h3 style={{ marginTop: 0, color: '#333' }}>{editingId !== null ? 'Sifarişi Redaktə Et' : 'Yeni Sifariş Əlavə Et'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
-              {/* 1-ci sətir: Müştəri Adı, Telefon Nömrəsi, Mənbə eyni sətirdə */}
+              {/* 1-ci sətir: Müştəri Adı, Telefon Nömrəsi, Mənbə */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1.2 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Müştəri Adı</label>
@@ -368,51 +502,10 @@ const Orders = () => {
                   <input type="text" placeholder="055XXXXXXX" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
                 
-                {/* Xüsusi İkonlu Dropdown Menyu */}
-                <div style={{ flex: 1.1, position: 'relative' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Mənbə</label>
-                  <div 
-                    onClick={() => setIsCustomDropdownOpen(!isCustomDropdownOpen)}
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {currentSelectedSource ? currentSelectedSource.icon : null}
-                      <span>{formData.source}</span>
-                    </div>
-                    <span>▼</span>
-                  </div>
-
-                  {isCustomDropdownOpen && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', zIndex: 1200, maxHeight: '200px', overflowY: 'auto', marginTop: '2px' }}>
-                      {sources.map(src => (
-                        <div 
-                          key={src.name} 
-                          onClick={() => {
-                            setFormData({...formData, source: src.name});
-                            setIsCustomDropdownOpen(false);
-                          }}
-                          style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f0f0f0' }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f4f0eb'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                        >
-                          {src.icon}
-                          <span>{src.name}</span>
-                        </div>
-                      ))}
-                      <div 
-                        onClick={() => {
-                          setIsCustomDropdownOpen(false);
-                          setIsSourceModalOpen(true);
-                        }}
-                        style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: '#5a3d28', backgroundColor: '#faf7f2' }}
-                      >
-                        ⚙️ <span>Əlavə et / Düzəliş et</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {renderCustomSelect('Mənbə', 'source', formData.source, sources, true)}
               </div>
 
+              {/* 2-ci sətir: Sifariş Tarixi və Təhvil Tarixi */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Sifariş Tarixi</label>
@@ -423,30 +516,26 @@ const Orders = () => {
                   <input type="date" required value={formData.deliveryDate} onChange={(e) => setFormData({...formData, deliveryDate: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Məhsul</label>
-                <input type="text" placeholder="Məs: Uşaq Yorğanı" required value={formData.product} onChange={(e) => setFormData({...formData, product: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
+
+              {/* 3-cü və 4-cü sətrlər üçün ümumi açıq krem ton background konteyneri */}
+              <div style={{ backgroundColor: '#fbf8f3', padding: '12px', borderRadius: '6px', border: '1px solid #f0e9dd', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                
+                {/* 3-cü sətir: Məhsul, İp, Rəng */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {renderCustomSelect('Məhsul', 'product', formData.product, productsList)}
+                  {renderCustomSelect('İp', 'yarn', formData.yarn, yarnsList)}
+                  {renderCustomSelect('Rəng', 'color', formData.color, colorsList)}
+                </div>
+
+                {/* 4-cü sətir: Hörgü, Ölçü */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {renderCustomSelect('Hörgü', 'pattern', formData.pattern, patternsList)}
+                  {renderCustomSelect('Ölçü', 'size', formData.size, sizesList)}
+                </div>
+
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>İp</label>
-                  <input type="text" placeholder="Alize Puffy" required value={formData.yarn} onChange={(e) => setFormData({...formData, yarn: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Rəng</label>
-                  <input type="text" placeholder="Məs: 55 - Ağ" required value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Hörgü</label>
-                  <input type="text" placeholder="Klassik Hörgü" required value={formData.pattern} onChange={(e) => setFormData({...formData, pattern: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Ölçü</label>
-                  <input type="text" placeholder="90x90 sm" required value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
-                </div>
-              </div>
+
+              {/* 5-ci sətir: Maya Dəyəri və Satış Qiyməti */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Maya Dəyəri</label>
@@ -457,6 +546,7 @@ const Orders = () => {
                   <input type="number" step="0.01" placeholder="80.00" required value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', marginTop: '4px' }} />
                 </div>
               </div>
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>İmtina</button>
                 <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>{editingId !== null ? 'Yenilə' : 'Əlavə et'}</button>
@@ -466,18 +556,24 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Mənbə Əlavə et / Düzəliş et Modalı */}
-      {isSourceModalOpen && (
+      {/* Ümumi Element İdarəetmə Modalı (Əlavə et / Sil) */}
+      {manageModalType && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
           <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', width: '350px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ marginTop: 0, color: '#333', fontSize: '18px' }}>Mənbələri İdarə Et</h3>
+            <h3 style={{ marginTop: 0, color: '#333', fontSize: '18px', textTransform: 'capitalize' }}>
+              {manageModalType === 'source' ? 'Mənbələri' :
+               manageModalType === 'product' ? 'Məhsulları' :
+               manageModalType === 'yarn' ? 'İpləri' :
+               manageModalType === 'color' ? 'Rəngləri' :
+               manageModalType === 'pattern' ? 'Hörgü növlərini' : 'Ölçüləri'} İdarə Et
+            </h3>
             
-            <form onSubmit={handleAddSource} style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
+            <form onSubmit={handleAddNewItem} style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
               <input 
                 type="text" 
-                placeholder="Yeni mənbə adı..." 
-                value={newSourceText} 
-                onChange={(e) => setNewSourceText(e.target.value)} 
+                placeholder="Yeni dəyər daxil et..." 
+                value={newItemText} 
+                onChange={(e) => setNewItemText(e.target.value)} 
                 required
                 style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} 
               />
@@ -485,19 +581,33 @@ const Orders = () => {
             </form>
 
             <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-              {sources.map(src => (
-                <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {src.icon}
-                    <span>{src.name}</span>
+              {manageModalType === 'source' ? (
+                sources.map(src => (
+                  <div key={src.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {src.icon}
+                      <span>{src.name}</span>
+                    </div>
+                    <span onClick={() => handleDeleteItem('source', src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
                   </div>
-                  <span onClick={() => handleDeleteSource(src.name)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
-                </div>
-              ))}
+                ))
+              ) : (
+                (
+                  manageModalType === 'product' ? productsList :
+                  manageModalType === 'yarn' ? yarnsList :
+                  manageModalType === 'color' ? colorsList :
+                  manageModalType === 'pattern' ? patternsList : sizesList
+                ).map(item => (
+                  <div key={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', backgroundColor: '#f9f6f0', borderRadius: '4px', fontSize: '13px' }}>
+                    <span>{item}</span>
+                    <span onClick={() => handleDeleteItem(manageModalType, item)} style={{ cursor: 'pointer', color: '#c0392b', fontWeight: 'bold', fontSize: '14px' }} title="Sil">🗑</span>
+                  </div>
+                ))
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button type="button" onClick={() => setIsSourceModalOpen(false)} style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Bağla</button>
+              <button type="button" onClick={() => setManageModalType(null)} style={{ padding: '8px 15px', backgroundColor: '#5a3d28', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Bağla</button>
             </div>
           </div>
         </div>
@@ -505,5 +615,7 @@ const Orders = () => {
     </div>
   );
 };
+
+Orders.propTypes = {};
 
 export default Orders;
